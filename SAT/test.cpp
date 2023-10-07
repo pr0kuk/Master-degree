@@ -1,15 +1,20 @@
 #include <gtest/gtest.h>
+#include "Sat.h"
 
-// Demonstrate some basic assertions.
-TEST(HelloTest, BasicAssertions) {
-  // Expect two strings not to be equal.
-  EXPECT_STRNE("hello", "world");
-  // Expect equality.
-  EXPECT_EQ(7 * 6, 42);
+TEST(Basic, SetVar) {
+  Sat_t Sat({{1, 2, -3}, {-1, 2}});
+  // ( x1 | x2 | ~x3 ) & ( ~x1 | x2 )
+  auto Output = Sat.setVar(-1);
+  EXPECT_STREQ(Output.dumpStr().data(), "( x2 | ~x3 )");
+  Output = Sat.setVar(1);
+  EXPECT_STREQ(Output.dumpStr().data(), "( x2 )");
+  Output = Sat.setVar(2);
+  EXPECT_STREQ(Output.dumpStr().data(), "");
+  Output = Sat.setVar(3);
+  EXPECT_STREQ(Output.dumpStr().data(), "( x1 | x2 ) & ( ~x1 | x2 )");
 }
 
-int main(int argc, char** argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
