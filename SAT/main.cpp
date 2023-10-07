@@ -7,6 +7,8 @@ using sat_t = std::vector<std::vector<int>>;
 
 template <typename T>
 concept ConvertibleToString = requires(T A) { std::to_string(A); };
+template <typename T>
+concept IterConvertibleToString = ConvertibleToString<typename T::value_type>;
 
 std::string variable(int num) {
     std::string out = num < 0 ? "~" : "";
