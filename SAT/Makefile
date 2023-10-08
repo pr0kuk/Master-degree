@@ -1,24 +1,30 @@
 CC=clang
 CXX=clang++
 CC_FLAGS= --std=c++2b  --stdlib=libc++ -fmodules -O2
-CC_GTEST_FLAGS= -lgtest_main -lgtest -lpthread 
+BUILD ?= build
 
 define generate_module
---precompile $(1).cppm -o $(1).pcm
+--precompile $(1).cppm -o $(BUILD)/$(1).pcm
 endef 
 define use_module
--fmodule-file=$(1).pcm $(1).pcm
+-fmodule-file=$(BUILD)/$(1).pcm $(BUILD)/$(1).pcm
 endef 
 
-# prepare first module
+all: main test
+
 Sat: Sat.cppm
 	$(CXX) $(CC_FLAGS) $(call generate_module,$@)
 
-
 main: Sat main.cpp
-	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $@.cpp
+	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $@.cpp -o $(BUILD)/$@.out
 
 test: Sat test.cpp
-	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $@.cpp $(CC_GTEST_FLAGS) 
+	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $@.cpp -o $(BUILD)/$@.out
 
-all: main test
+clean: 
+	rm $(BUILD)/*.out $(BUILD)/*.pcm
+
+format:
+	find ./ -name '*.cppm' -exec clang-format -i -style=llvm {} \;
+	find ./ -name '*.cpp' -exec clang-format -i -style=llvm {} \;
+	find ./ -name '*.h' -exec clang-format -i -style=llvm {} \;
