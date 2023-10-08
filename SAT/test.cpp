@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-import<gtest/gtest.h>;
+//import<gtest/gtest.h>;
 import Sat;
 
 TEST(Basic, SetVar) {
