@@ -3,8 +3,8 @@ project(Sat)
 
 find_package(GTest REQUIRED)
 
-set(CMAKE_C_COMPILER "gcc-13")
-set(CMAKE_CXX_COMPILER "g++-13")
+set(CMAKE_C_COMPILER "clang-17")
+set(CMAKE_CXX_COMPILER "clang++-17")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -O3") # use CMAKE_CXX_STANDARD
 set(CMAKE_CXX_STANDARD 20)
 

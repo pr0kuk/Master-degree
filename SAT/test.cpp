@@ -1,5 +1,7 @@
-#include <gtest/gtest.h>
-#include "Sat.h"
+#include <iostream>
+#include <string>
+import<gtest/gtest.h>;
+import Sat;
 
 TEST(Basic, SetVar) {
   Sat_t Sat({{1, 2, -3}, {-1, 2}});
