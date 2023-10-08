@@ -1,5 +1,6 @@
-#include "Sat.h"
-#include <concepts>
+import Sat;
+
+import<iostream>;
 
 int main() {
   Sat_t Sat({{1, 2, -3}, {-1, 2}});
