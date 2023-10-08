@@ -3,13 +3,14 @@ project(Sat)
 
 find_package(GTest REQUIRED)
 
-set(CMAKE_C_COMPILER "clang-17")
+#set(CMAKE_C_COMPILER "clang-17")
 set(CMAKE_CXX_COMPILER "clang++-17")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -O3") # use CMAKE_CXX_STANDARD
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmodules --precompile") # use CMAKE_CXX_STANDARD
+add_compile_options(-stdlib=libc++)
 set(CMAKE_CXX_STANDARD 20)
-
-add_executable( main main.cpp Sat.cpp )
-add_executable( test test.cpp Sat.cpp )
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+add_executable( main main.cpp Sat.cppm )
+add_executable( test test.cpp Sat.cppm )
 target_link_libraries( test GTest::gtest_main )
 
 set(BINARIES
