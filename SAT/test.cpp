@@ -1,6 +1,7 @@
 import <iostream>;
 import <string>;
 import Sat;
+import Algo;
 
 template <class T>
 concept equality_comparable = requires(T a, T b) {
@@ -22,7 +23,7 @@ bool compare(T Lhs, T Rhs, size_t Line, const char Filename[]) {
 
 #define EXPECT_EQ(lhs, rhs) compare(lhs, rhs, __LINE__, __FILE__)
 
-void test1() {
+void testSetVar() {
   Sat_t Sat({{1, 2, -3}, {-1, 2}});
   // ( x1 | x2 | ~x3 ) & ( ~x1 | x2 )
 
@@ -36,4 +37,26 @@ void test1() {
   EXPECT_EQ(Output.dumpStr(), std::string("( x1 | x2 ) & ( ~x1 | x2 )"));
 }
 
-int main(int argc, char **argv) { test1(); }
+void testSimplestCheck() {
+  Sat_t SatTrue({{1, 2, -3}, {-1, 2}});
+  Sat_t SatFalse({{1}, {-1}});
+  // ( x1 | x2 | ~x3 ) & ( ~x1 | x2 )
+
+  EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
+  EXPECT_EQ(Algo::simplestCheck(SatFalse, 1), false);
+}
+
+void testSimplestFind() { // to implement
+  // Sat_t SatTrue({{1, 2, -3}, {-1, 2}});
+  // Sat_t SatFalse({{1}, {-1}});
+  //// ( x1 | x2 | ~x3 ) & ( ~x1 | x2 )
+  //
+  // EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
+  // EXPECT_EQ(Algo::simplestCheck(SatFalse, 1), false);
+}
+
+int main(int argc, char **argv) {
+  testSetVar();
+  testSimplestCheck();
+  testSimplestFind();
+}

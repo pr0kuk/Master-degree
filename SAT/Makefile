@@ -9,17 +9,22 @@ endef
 define use_module
 -fmodule-file=$(BUILD)/$(1).pcm $(BUILD)/$(1).pcm
 endef 
+define use_precomp_module
+-fmodule-file=$(BUILD)/$(1).pcm
+endef 
 
 all: main test
 
 Sat: Sat.cppm
 	$(CXX) $(CC_FLAGS) $(call generate_module,$@)
+Algo: Sat Algo.cppm
+	$(CXX) $(CC_FLAGS) $(call use_precomp_module,Sat) $(call generate_module,$@)
 
-main: Sat main.cpp
-	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $@.cpp -o $(BUILD)/$@.out
+main: Sat Algo main.cpp
+	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $(call use_module,Algo) $@.cpp -o $(BUILD)/$@.out
 
-test: Sat test.cpp
-	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $@.cpp -o $(BUILD)/$@.out
+test: Sat Algo test.cpp
+	$(CXX) $(CC_FLAGS) $(call use_module,Sat) $(call use_module,Algo) $@.cpp -o $(BUILD)/$@.out
 
 clean: 
 	rm $(BUILD)/*.out $(BUILD)/*.pcm

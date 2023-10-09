@@ -33,6 +33,8 @@ public:
   std::string dumpStr() const;
   void dump(std::string ExtraMsg = "Current SAT:") const;
   Sat_t setVar(int VarSet) const;
+
+  operator bool() const { return Value.empty(); }
 };
 
 // Implementations
