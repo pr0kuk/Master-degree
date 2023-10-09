@@ -1,26 +1,11 @@
 export module Sat;
 
 import <algorithm>;
-import <functional>;
 import <iostream>;
 export import <vector>;
 import <string>;
 
-template <typename Iter>
-std::string join(
-    Iter Begin, Iter End, const std::string &Separator,
-    std::function<std::string(typename Iter::value_type)> func =
-        [](typename Iter::value_type Elem) { return Elem; }) {
-  if (Begin == End)
-    return std::string{};
-  std::string Result = func(*Begin);
-  ++Begin;
-  while (Begin != End) {
-    Result += Separator + func(*Begin);
-    ++Begin;
-  }
-  return Result;
-}
+import Common;
 
 using SatValue_t = std::vector<std::vector<int>>;
 export class Sat_t final {

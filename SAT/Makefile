@@ -15,8 +15,10 @@ endef
 
 all: main test
 
-Sat: Sat.cppm
+Common: Common.cppm
 	$(CXX) $(CC_FLAGS) $(call generate_module,$@)
+Sat: Common Sat.cppm
+	$(CXX) $(CC_FLAGS) $(call use_precomp_module,Common) $(call generate_module,$@)
 Algo: Sat Algo.cppm
 	$(CXX) $(CC_FLAGS) $(call use_precomp_module,Sat) $(call generate_module,$@)
 
