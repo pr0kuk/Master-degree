@@ -1,6 +1,8 @@
 import Algo;
 import Algo2;
 import <filesystem>;
+import <chrono>;
+import <iomanip>;
 template <class T>
 concept equality_comparable = requires(T a, T b) {
   a == b;
@@ -38,7 +40,7 @@ bool compare(T Lhs, T Rhs, std::string ErrMessage, size_t Line, const char Filen
   std::cout << "Where: " << Filename << ":" << Line << std::endl;
   std::cout << "\033[1;34mLhs: " << Lhs << "\nRhs: " << Rhs << "\033[0m"
             << std::endl;
-  std::cout << "\033[1;33m"+ErrMessage << std::endl;
+  std::cout << "\033[1;33m"+ErrMessage << "\033[0m" << std::endl;
   return false;
 }
 
@@ -100,6 +102,8 @@ void testFileInput() {
 }
 
 void testUf() {
+  std::vector<std::chrono::duration<double>> time_algo, time_algo2;
+  std::chrono::time_point<std::chrono::steady_clock> start, end;
   std::string path = "./cnf";
   for (const auto & entry : std::filesystem::directory_iterator(path)) {
     Sat::Sat_t SatTrue = Sat::inputFromFile(entry.path());
@@ -109,8 +113,11 @@ void testUf() {
     EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, 3), true, std::string(entry.path()) + " should be SAT, but Algo::simplestCheck says UNSAT");
     EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, 3), true, std::string(entry.path()) + " should be SAT, but Algo2::simplestCheck says UNSAT");
     
+    start = std::chrono::steady_clock::now();
     auto Set1 = Algo::simplestFind<3>(SatTrue);
+    end = std::chrono::steady_clock::now(); time_algo.push_back(end-start); start = end;
     auto Set2 = Algo2::simplestFind<3>(SatTrue2);
+    end = std::chrono::steady_clock::now(); time_algo2.push_back(end-start); start = end;
 
     EXPECT_EQ_MSG(Set1.has_value(), true, std::string(entry.path()) + " should be SAT, but Algo::simplestFind says UNSAT");
     EXPECT_EQ_MSG(Set2.has_value(), true, std::string(entry.path()) + " should be SAT, but Algo2::simplestFind says UNSAT");
@@ -118,6 +125,15 @@ void testUf() {
     //SatTrue.dump();
     //SatTrue2.dump();
   }
+
+  /* this is time output
+  std::cout << std::endl;
+  for (auto i:time_algo)
+    std::cout << std::setprecision (3) << i.count() << " ";
+  std::cout << std::endl;
+  for (auto i:time_algo2)
+    std::cout << std::setprecision (3) << (i).count() << " ";
+  std::cout << std::endl; */
 }
 
 void testSimplestFind() { // to implement
