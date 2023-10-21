@@ -28,8 +28,10 @@ std::optional<std::string> simplestFind(const Sat2::Sat_t &Sat2);
 // -------------- Implementations ------------------------------------
 
 bool Algo2::simplestCheck(const Sat2::Sat_t &Sat2, size_t VarCount) {
-  if (VarCount == 0)
+  // ---- DIFFER ----
+  if (!Sat2 || VarCount == 0)
     return Sat2;
+  // ---- ------ ----
   return simplestCheck(Sat2.setVar(VarCount), VarCount - 1) ||
          simplestCheck(Sat2.setVar(-VarCount), VarCount - 1);
 }
