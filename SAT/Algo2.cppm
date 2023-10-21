@@ -51,8 +51,10 @@ template <size_t N>
 std::optional<std::bitset<N>> detail::simplestFind(const Sat2::Sat_t &Sat2,
                                                    size_t VarCount,
                                                    std::bitset<N> VarSets) {
+  // ---- DIFFER ----
   if (!Sat2)
     return std::nullopt;
+  // ---- ------ ----
 
   if (VarCount == 0)
     return std::make_optional(VarSets);
