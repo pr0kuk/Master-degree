@@ -62,10 +62,15 @@ void testFileInput() {
 
 void testUf() {
   Sat::Sat_t SatTrue = Sat::inputFromFile("cnf/uf20-01.cnf");
+  Sat2::Sat_t SatTrue2 = Sat2::inputFromFile("cnf/uf20-01.cnf");
   EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
-  auto Set = Algo::simplestFind<3>(SatTrue);
-  EXPECT_EQ(Set.has_value(), true);
-  SatTrue.dump();
+  auto Set1 = Algo::simplestFind<3>(SatTrue);
+  EXPECT_EQ(Set1.has_value(), true);
+  auto Set2 = Algo2::simplestFind<3>(SatTrue2);
+  EXPECT_EQ(Algo2::simplestCheck(SatTrue2, 3), true);
+  EXPECT_EQ(Set2.has_value(), true);
+  //SatTrue.dump();
+  //SatTrue2.dump();
 }
 
 void testSimplestFind() { // to implement
