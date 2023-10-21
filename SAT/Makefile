@@ -21,12 +21,16 @@ Sat: Common Sat.cppm
 	$(CXX) $(CC_FLAGS) $(call use_precomp_module,Common) $(call generate_module,$@)
 Algo: Sat Algo.cppm
 	$(CXX) $(CC_FLAGS) $(call use_precomp_module,Common) $(call use_precomp_module,Sat) $(call generate_module,$@)
+Sat2: Common Sat2.cppm
+	$(CXX) $(CC_FLAGS) $(call use_precomp_module,Common) $(call generate_module,$@)
+Algo2: Sat2 Algo2.cppm
+	$(CXX) $(CC_FLAGS) $(call use_precomp_module,Common) $(call use_precomp_module,Sat2) $(call generate_module,$@)
 
 main: Common Sat Algo main.cpp
 	$(CXX) $(CC_FLAGS) $(call use_module,Common) $(call use_module,Sat) $(call use_module,Algo) $@.cpp -o $(BUILD)/$@.out
 
-test: Common Sat Algo test.cpp
-	$(CXX) $(CC_FLAGS) $(call use_module,Common) $(call use_module,Sat) $(call use_module,Algo) $@.cpp -o $(BUILD)/$@.out
+test: Algo Algo2 test.cpp
+	$(CXX) $(CC_FLAGS) $(call use_module,Common) $(call use_module,Sat) $(call use_module,Algo) $(call use_module,Sat2) $(call use_module,Algo2) $@.cpp -o $(BUILD)/$@.out
 
 clean: 
 	rm $(BUILD)/*.out $(BUILD)/*.pcm

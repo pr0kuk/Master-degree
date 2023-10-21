@@ -1,4 +1,5 @@
 import Algo;
+import Algo2;
 
 template <class T>
 concept equality_comparable = requires(T a, T b) {
@@ -72,8 +73,30 @@ void testSimplestFind() { // to implement
   EXPECT_EQ(*Algo::simplestFind<2>(Sat4), std::string("~x1 x2 "));
 }
 
+void testSimplestFind2() { // to implement
+  Sat2::Sat_t SatFalse({{1}, {-1}});
+  auto SetFalse = Algo2::simplestFind<1>(SatFalse);
+  EXPECT_EQ(SetFalse.has_value(), false);
+
+  Sat2::Sat_t Sat1({{1, 2, -3}, {-1, 2}});
+  auto Set1 = Algo2::simplestFind<3>(Sat1);
+  EXPECT_EQ(Set1.has_value(), true);
+  EXPECT_EQ(*Set1, std::string("~x1 ~x2 ~x3 "));
+
+  Sat2::Sat_t Sat2({{1, 2, -3}, {1, 2}});
+  auto Set2 = Algo2::simplestFind<3>(Sat2);
+  EXPECT_EQ(*Set2, std::string("x1 ~x2 ~x3 "));
+
+  Sat2::Sat_t Sat3({{1, -2}, {1, 2}});
+  EXPECT_EQ(*Algo2::simplestFind<2>(Sat3), std::string("x1 ~x2 "));
+
+  Sat2::Sat_t Sat4({{1, 2}, {-1, 2}});
+  EXPECT_EQ(*Algo2::simplestFind<2>(Sat4), std::string("~x1 x2 "));
+}
+
 int main(int argc, char **argv) {
   testSetVar();
   testSimplestCheck();
   testSimplestFind();
+  testSimplestFind2();
 }
