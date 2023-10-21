@@ -56,8 +56,11 @@ void testSimplestCheck() {
 
 void testFileInput() {
   Sat::Sat_t SatTrue = Sat::inputFromFile("cnf/manual.cnf");
+  Sat2::Sat_t SatTrue2 = Sat2::inputFromFile("cnf/manual.cnf");
   EXPECT_EQ(SatTrue.dumpStr(), std::string("( x1 | x2 | ~x3 ) & ( ~x1 | x2 )"));
   EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
+  EXPECT_EQ(SatTrue2.dumpStr(), std::string("( x1 | x2 | ~x3 ) & ( ~x1 | x2 )"));
+  EXPECT_EQ(Algo2::simplestCheck(SatTrue2, 3), true);
 }
 
 void testUf() {
