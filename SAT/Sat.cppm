@@ -1,14 +1,25 @@
+module;
+
+#include <algorithm>
+
 export module Sat;
 
-import <algorithm>;
-import <iostream>;
+export import <iostream>;
 export import <vector>;
-import <string>;
+import <functional>;
 
 import Common;
 
+namespace detail {
+template <typename T>
+concept is_convertible_str = std::is_convertible_v<T, std::string>;
+
+template <is_convertible_str T> std::string baseJoin(T Elem) { return Elem; }
+} // namespace detail
+
+export namespace Sat {
 using SatValue_t = std::vector<std::vector<int>>;
-export class Sat_t final {
+class Sat_t final {
   SatValue_t Value;
   static std::string toVariableDump(int Num);
 
@@ -21,29 +32,32 @@ public:
 
   operator bool() const { return Value.empty(); }
 };
+} // namespace Sat
 
 // Implementations
 // --------------------------------------------------------
 
-std::string Sat_t::toVariableDump(int Num) {
+std::string Sat::Sat_t::toVariableDump(int Num) {
   std::string Out = Num < 0 ? "~" : "";
   return Out + "x" + std::to_string(std::abs(Num));
 }
 
-std::string Sat_t::dumpStr() const {
+std::string Sat::Sat_t::dumpStr() const {
   std::vector<std::string> Units;
   Units.reserve(Value.size());
   for (const auto &Conj : Value)
     Units.push_back(
-        "( " + join(Conj.begin(), Conj.end(), " | ", toVariableDump) + " )");
+        "( " + Common::join(Conj.begin(), Conj.end(), " | ", toVariableDump) +
+        " )");
 
-  return join(Units.begin(), Units.end(), " & ");
+  return Common::join(Units.begin(), Units.end(), " & ",
+                      detail::baseJoin<std::string>);
 }
-void Sat_t::dump(std::string ExtraMsg) const {
+void Sat::Sat_t::dump(std::string ExtraMsg) const {
   std::cout << ExtraMsg << "\n" << dumpStr() << "\n";
 }
 
-Sat_t Sat_t::setVar(int VarSet) const {
+Sat::Sat_t Sat::Sat_t::setVar(int VarSet) const {
   SatValue_t Output;
   Output.reserve(Value.size());
   for (const auto &Clause : Value) {

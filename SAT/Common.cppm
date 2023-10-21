@@ -3,11 +3,14 @@ export module Common;
 import <iostream>;
 import <functional>;
 
-export template <typename Iter>
-std::string join(
-    Iter Begin, Iter End, const std::string &Separator,
-    std::function<std::string(typename Iter::value_type)> func =
-        [](typename Iter::value_type Elem) { return Elem; }) {
+export namespace Common {
+template <typename Iter, typename F>
+std::string join(Iter Begin, Iter End, const std::string &Separator, F func);
+}
+
+template <typename Iter, typename F>
+std::string Common::join(Iter Begin, Iter End, const std::string &Separator,
+                         F func) {
   if (Begin == End)
     return std::string{};
   std::string Result = func(*Begin);

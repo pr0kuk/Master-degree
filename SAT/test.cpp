@@ -1,6 +1,3 @@
-import <iostream>;
-import <string>;
-import Sat;
 import Algo;
 
 template <class T>
@@ -34,7 +31,7 @@ bool compare(bool Cmp, size_t Line, const char Filename[]) {
 #define EXPECT_SET(cmp) compare(cmp, __LINE__, __FILE__)
 
 void testSetVar() {
-  Sat_t Sat({{1, 2, -3}, {-1, 2}});
+  Sat::Sat_t Sat({{1, 2, -3}, {-1, 2}});
   // ( x1 | x2 | ~x3 ) & ( ~x1 | x2 )
 
   auto Output = Sat.setVar(-1);
@@ -48,8 +45,8 @@ void testSetVar() {
 }
 
 void testSimplestCheck() {
-  Sat_t SatTrue({{1, 2, -3}, {-1, 2}});
-  Sat_t SatFalse({{1}, {-1}});
+  Sat::Sat_t SatTrue({{1, 2, -3}, {-1, 2}});
+  Sat::Sat_t SatFalse({{1}, {-1}});
   // ( x1 | x2 | ~x3 ) & ( ~x1 | x2 )
 
   EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
@@ -57,11 +54,11 @@ void testSimplestCheck() {
 }
 
 void testSimplestFind() { // to implement
-  Sat_t SatFalse({{1}, {-1}});
+  Sat::Sat_t SatFalse({{1}, {-1}});
   auto SetFalse = Algo::simplestFind<1>(SatFalse);
-  Sat_t Sat1({{1, 2, -3}, {-1, 2}});
+  Sat::Sat_t Sat1({{1, 2, -3}, {-1, 2}});
   auto Set1 = Algo::simplestFind<3>(Sat1);
-  Sat_t Sat2({{1, 2, -3}, {1, 2}});
+  Sat::Sat_t Sat2({{1, 2, -3}, {1, 2}});
   auto Set2 = Algo::simplestFind<3>(Sat2);
 
   EXPECT_EQ(SetFalse.has_value(), false);
@@ -69,9 +66,9 @@ void testSimplestFind() { // to implement
   EXPECT_EQ(*Set1, std::string("~x1 ~x2 ~x3 "));
   EXPECT_EQ(*Set2, std::string("x1 ~x2 ~x3 "));
 
-  Sat_t Sat3({{1, -2}, {1, 2}});
+  Sat::Sat_t Sat3({{1, -2}, {1, 2}});
   EXPECT_EQ(*Algo::simplestFind<2>(Sat3), std::string("x1 ~x2 "));
-  Sat_t Sat4({{1, 2}, {-1, 2}});
+  Sat::Sat_t Sat4({{1, 2}, {-1, 2}});
   EXPECT_EQ(*Algo::simplestFind<2>(Sat4), std::string("~x1 x2 "));
 }
 

@@ -1,16 +1,16 @@
+module;
+
+#include <bitset>
+
 export module Algo;
 
-import <iostream>;
-import <vector>;
-export import <bitset>;
 export import <optional>;
-
-import Sat;
+export import Sat;
 
 namespace detail {
 template <size_t N>
 std::optional<std::bitset<N>>
-simplestFind(const Sat_t &Sat, size_t VarCount = N,
+simplestFind(const Sat::Sat_t &Sat, size_t VarCount = N,
              std::bitset<N> VarSets = std::bitset<N>{}) {
 
   if (VarCount == 0)
@@ -30,14 +30,15 @@ simplestFind(const Sat_t &Sat, size_t VarCount = N,
 
 export namespace Algo {
 
-bool simplestCheck(const Sat_t &Sat, size_t VarCount = 0) {
+bool simplestCheck(const Sat::Sat_t &Sat, size_t VarCount = 0) {
   if (VarCount == 0)
     return Sat;
   return simplestCheck(Sat.setVar(VarCount), VarCount - 1) ||
          simplestCheck(Sat.setVar(-VarCount), VarCount - 1);
 }
 
-template <size_t N> std::optional<std::string> simplestFind(const Sat_t &Sat) {
+template <size_t N>
+std::optional<std::string> simplestFind(const Sat::Sat_t &Sat) {
   auto VarSet = detail::simplestFind<N>(Sat);
   if (!VarSet)
     return std::nullopt;
