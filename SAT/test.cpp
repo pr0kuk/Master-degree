@@ -1,6 +1,6 @@
 import Algo;
 import Algo2;
-
+import <filesystem>;
 template <class T>
 concept equality_comparable = requires(T a, T b) {
   a == b;
@@ -18,6 +18,20 @@ bool compare(T Lhs, T Rhs, size_t Line, const char Filename[]) {
             << std::endl;
   return false;
 }
+template <equality_comparable T>
+bool compare(T Lhs, T Rhs, std::string ErrMessage, size_t Line, const char Filename[]) {
+  if (Lhs == Rhs) {
+    std::cout << "\033[1;32mPASSED!\033[0m\n";
+    return true;
+  }
+  std::cout << "\033[1;31mTEST FAILED!\n";
+  std::cout << "Where: " << Filename << ":" << Line << std::endl;
+  std::cout << "\033[1;34mLhs: " << Lhs << "\nRhs: " << Rhs << "\033[0m"
+            << std::endl;
+  std::cout << "\033[1;33m"+ErrMessage << std::endl;
+  return false;
+}
+
 bool compare(bool Cmp, size_t Line, const char Filename[]) {
   if (Cmp) {
     std::cout << "\033[1;32mPASSED!\033[0m\n";
@@ -28,6 +42,7 @@ bool compare(bool Cmp, size_t Line, const char Filename[]) {
   return false;
 }
 
+#define EXPECT_EQ_MSG(lhs, rhs, ErrMessage) compare(lhs, rhs, ErrMessage, __LINE__, __FILE__)
 #define EXPECT_EQ(lhs, rhs) compare(lhs, rhs, __LINE__, __FILE__)
 #define EXPECT_SET(cmp) compare(cmp, __LINE__, __FILE__)
 
@@ -123,4 +138,5 @@ int main(int argc, char **argv) {
   testSimplestFind2();
   testFileInput();
   testUf();
+  testUfAll();
 }
