@@ -6,8 +6,10 @@ export module Sat;
 
 export import <iostream>;
 export import <vector>;
-import <functional>;
 
+import <fstream>;
+import <functional>;
+import <sstream>;
 import Common;
 
 namespace detail {
@@ -32,6 +34,36 @@ public:
 
   operator bool() const { return Value.empty(); }
 };
+
+
+Sat::Sat_t inputFromFile(std::string FileName) {
+  std::ifstream In(FileName);
+  SatValue_t Clauses;
+  std::vector<int> Clause;
+  std::string Line;
+  bool Flag = false;
+  if (In.is_open()) {
+    while (std::getline(In, Line) && !Flag) {
+      if (Line[0] == 'c' || Line[0] == 'p')
+          continue;
+      std::istringstream Ist(Line);
+      for (std::string Word; Ist >> Word; ) {
+        if (Word == "%")
+          Flag = true;
+        if (Word != "0")
+          Clause.push_back(atoi(Word.c_str()));
+        else {
+          Clauses.push_back(Clause);
+          Clause.clear();
+        }
+      }
+    }
+  }
+  In.close(); 
+  Sat::Sat_t Sat(std::move(Clauses));
+  return Sat;
+}
+
 } // namespace Sat
 
 // Implementations
@@ -56,6 +88,8 @@ std::string Sat::Sat_t::dumpStr() const {
 void Sat::Sat_t::dump(std::string ExtraMsg) const {
   std::cout << ExtraMsg << "\n" << dumpStr() << "\n";
 }
+
+
 
 Sat::Sat_t Sat::Sat_t::setVar(int VarSet) const {
   SatValue_t Output;
