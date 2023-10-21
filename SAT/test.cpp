@@ -110,13 +110,13 @@ void testUf() {
     Sat2::Sat_t SatTrue2 = Sat2::inputFromFile(entry.path());
     EXPECT_EQ_MSG(SatTrue.dumpStr(), SatTrue2.dumpStr(), std::string(entry.path()) + " input differs in Sat and Sat2");
 
-    EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, 3), true, std::string(entry.path()) + " should be SAT, but Algo::simplestCheck says UNSAT");
-    EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, 3), true, std::string(entry.path()) + " should be SAT, but Algo2::simplestCheck says UNSAT");
+    EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, SatTrue.getVarCount()), true, std::string(entry.path()) + " should be SAT, but Algo::simplestCheck says UNSAT");
+    EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, SatTrue2.getVarCount()), true, std::string(entry.path()) + " should be SAT, but Algo2::simplestCheck says UNSAT");
     
     start = std::chrono::steady_clock::now();
-    auto Set1 = Algo::simplestFind<3>(SatTrue);
+    auto Set1 = Algo::simplestFind<20>(SatTrue);
     end = std::chrono::steady_clock::now(); time_algo.push_back(end-start); start = end;
-    auto Set2 = Algo2::simplestFind<3>(SatTrue2);
+    auto Set2 = Algo2::simplestFind<20>(SatTrue2);
     end = std::chrono::steady_clock::now(); time_algo2.push_back(end-start); start = end;
 
     EXPECT_EQ_MSG(Set1.has_value(), true, std::string(entry.path()) + " should be SAT, but Algo::simplestFind says UNSAT");
