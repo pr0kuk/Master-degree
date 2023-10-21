@@ -54,6 +54,20 @@ void testSimplestCheck() {
   EXPECT_EQ(Algo::simplestCheck(SatFalse, 1), false);
 }
 
+void testFileInput() {
+  Sat::Sat_t SatTrue = Sat::inputFromFile("cnf/manual.cnf");
+  EXPECT_EQ(SatTrue.dumpStr(), std::string("( x1 | x2 | ~x3 ) & ( ~x1 | x2 )"));
+  EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
+}
+
+void testUf() {
+  Sat::Sat_t SatTrue = Sat::inputFromFile("cnf/uf20-01.cnf");
+  EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
+  auto Set = Algo::simplestFind<3>(SatTrue);
+  EXPECT_EQ(Set.has_value(), true);
+  SatTrue.dump();
+}
+
 void testSimplestFind() { // to implement
   Sat::Sat_t SatFalse({{1}, {-1}});
   auto SetFalse = Algo::simplestFind<1>(SatFalse);
@@ -99,4 +113,6 @@ int main(int argc, char **argv) {
   testSimplestCheck();
   testSimplestFind();
   testSimplestFind2();
+  testFileInput();
+  testUf();
 }
