@@ -26,11 +26,12 @@ class Sat_t final {
   bool CanBeTrue;
   // ---- ------ ----
   static std::string toVariableDump(int Num);
+  int VarCount = 0;
 
 public:
-  Sat_t(SatValue_t &&NewValue, bool NewCanBeTrue = true)
-      : Value(std::move(NewValue)), CanBeTrue(NewCanBeTrue) {}
-
+  Sat_t(SatValue_t &&NewValue, bool NewCanBeTrue = true, int VarCount=0)
+      : Value(std::move(NewValue)), CanBeTrue(NewCanBeTrue), VarCount(VarCount) {}
+  int getVarCount() {return VarCount;}
   std::string dumpStr() const;
   void dump(std::string ExtraMsg = "Current SAT:") const;
   Sat_t setVar(int VarSet) const;
@@ -45,11 +46,21 @@ public:
     std::vector<int> Clause;
     std::string Line;
     bool Flag = false;
+    int VarCount = 0;
     if (In.is_open()) {
       while (std::getline(In, Line) && !Flag) {
-        if (Line[0] == 'c' || Line[0] == 'p')
+        if (Line[0] == 'c')
             continue;
         std::istringstream Ist(Line);
+        if (Line[0] == 'p') {
+            std::string Word;
+            Ist >> Word;
+            Ist >> Word;
+            Ist >> Word;
+            VarCount = atoi(Word.c_str());
+            continue;
+        }
+
         for (std::string Word; Ist >> Word; ) {
           if (Word == "%")
             Flag = true;
@@ -63,7 +74,7 @@ public:
       }
     }
     In.close(); 
-    Sat2::Sat_t Sat(std::move(Clauses));
+    Sat2::Sat_t Sat(std::move(Clauses), VarCount);
     return Sat;
   }
 } // namespace Sat2

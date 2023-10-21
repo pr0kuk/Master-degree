@@ -24,10 +24,10 @@ using SatValue_t = std::vector<std::vector<int>>;
 class Sat_t final {
   SatValue_t Value;
   static std::string toVariableDump(int Num);
-
+  int VarCount = 0;
 public:
-  Sat_t(SatValue_t &&NewValue) : Value(std::move(NewValue)) {}
-
+  Sat_t(SatValue_t &&NewValue, int VarCount = 0) : Value(std::move(NewValue)), VarCount(VarCount) {}
+  int getVarCount() {return VarCount;}
   std::string dumpStr() const;
   void dump(std::string ExtraMsg = "Current SAT:") const;
   Sat_t setVar(int VarSet) const;
@@ -42,11 +42,21 @@ Sat::Sat_t inputFromFile(std::string FileName) {
   std::vector<int> Clause;
   std::string Line;
   bool Flag = false;
+  int VarCount = 0;
   if (In.is_open()) {
     while (std::getline(In, Line) && !Flag) {
-      if (Line[0] == 'c' || Line[0] == 'p')
+      if (Line[0] == 'c')
           continue;
       std::istringstream Ist(Line);
+      if (Line[0] == 'p') {
+          std::string Word;
+          Ist >> Word;
+          Ist >> Word;
+          Ist >> Word;
+          VarCount = atoi(Word.c_str());
+          continue;
+      }
+
       for (std::string Word; Ist >> Word; ) {
         if (Word == "%")
           Flag = true;
@@ -60,7 +70,7 @@ Sat::Sat_t inputFromFile(std::string FileName) {
     }
   }
   In.close(); 
-  Sat::Sat_t Sat(std::move(Clauses));
+  Sat::Sat_t Sat(std::move(Clauses), VarCount);
   return Sat;
 }
 
