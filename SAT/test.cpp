@@ -83,12 +83,17 @@ void testUf() {
   for (const auto & entry : std::filesystem::directory_iterator(path)) {
     Sat::Sat_t SatTrue = Sat::inputFromFile(entry.path());
     Sat2::Sat_t SatTrue2 = Sat2::inputFromFile(entry.path());
-    auto Set1 = Algo::simplestFind<3>(SatTrue);
+    EXPECT_EQ_MSG(SatTrue.dumpStr(), SatTrue2.dumpStr(), std::string(entry.path()) + " input differs in Sat and Sat2");
+
     EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, 3), true, std::string(entry.path()) + " should be SAT, but Algo::simplestCheck says UNSAT");
-    EXPECT_EQ_MSG(Set1.has_value(), true, std::string(entry.path()) + " should be SAT, but Algo::simplestFind says UNSAT");
-    auto Set2 = Algo2::simplestFind<3>(SatTrue2);
     EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, 3), true, std::string(entry.path()) + " should be SAT, but Algo2::simplestCheck says UNSAT");
+    
+    auto Set1 = Algo::simplestFind<3>(SatTrue);
+    auto Set2 = Algo2::simplestFind<3>(SatTrue2);
+
+    EXPECT_EQ_MSG(Set1.has_value(), true, std::string(entry.path()) + " should be SAT, but Algo::simplestFind says UNSAT");
     EXPECT_EQ_MSG(Set2.has_value(), true, std::string(entry.path()) + " should be SAT, but Algo2::simplestFind says UNSAT");
+    
     //SatTrue.dump();
     //SatTrue2.dump();
   }
