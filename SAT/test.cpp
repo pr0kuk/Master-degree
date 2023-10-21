@@ -6,25 +6,35 @@ concept equality_comparable = requires(T a, T b) {
   a == b;
 };
 
+static int number_of_tests;
+static int number_of_passed;
+static int number_of_failed;
+
 template <equality_comparable T>
-bool compare(T Lhs, T Rhs, size_t Line, const char Filename[]) {
+bool compare(T Lhs, T Rhs, size_t Line, const char Filename[], const char Functionname[]) {
+  number_of_tests++;
   if (Lhs == Rhs) {
-    std::cout << "\033[1;32mPASSED!\033[0m\n";
+    number_of_passed++;
+    //std::cout << "\033[1;32mPASSED!\033[0m\n";
     return true;
   }
-  std::cout << "\033[1;31mTEST FAILED!\n";
+  number_of_failed++;
+  std::cout << "\033[1;31mTEST \"" << Functionname << "\" FAILED!\n";
   std::cout << "Where: " << Filename << ":" << Line << std::endl;
   std::cout << "\033[1;34mLhs: " << Lhs << "\nRhs: " << Rhs << "\033[0m"
             << std::endl;
   return false;
 }
 template <equality_comparable T>
-bool compare(T Lhs, T Rhs, std::string ErrMessage, size_t Line, const char Filename[]) {
+bool compare(T Lhs, T Rhs, std::string ErrMessage, size_t Line, const char Filename[], const char Functionname[]) {
+  number_of_tests++;
   if (Lhs == Rhs) {
-    std::cout << "\033[1;32mPASSED!\033[0m\n";
+    number_of_passed++;
+    //std::cout << "\033[1;32mPASSED!\033[0m\n";
     return true;
   }
-  std::cout << "\033[1;31mTEST FAILED!\n";
+  number_of_failed++;
+  std::cout << "\033[1;31mTEST \"" << Functionname << "\" FAILED!\n";
   std::cout << "Where: " << Filename << ":" << Line << std::endl;
   std::cout << "\033[1;34mLhs: " << Lhs << "\nRhs: " << Rhs << "\033[0m"
             << std::endl;
@@ -32,19 +42,30 @@ bool compare(T Lhs, T Rhs, std::string ErrMessage, size_t Line, const char Filen
   return false;
 }
 
-bool compare(bool Cmp, size_t Line, const char Filename[]) {
+bool compare(bool Cmp, size_t Line, const char Filename[], const char Functionname[]) {
+  number_of_tests++;
   if (Cmp) {
-    std::cout << "\033[1;32mPASSED!\033[0m\n";
+    number_of_passed++;
+    //std::cout << "\033[1;32mPASSED!\033[0m\n";
     return true;
   }
-  std::cout << "\033[1;31mTEST FAILED!\n";
+  number_of_failed++;
+  std::cout << "\033[1;31mTEST \"" << Functionname << "\" FAILED!\n";
   std::cout << "Where: " << Filename << ":" << Line << std::endl;
   return false;
 }
 
-#define EXPECT_EQ_MSG(lhs, rhs, ErrMessage) compare(lhs, rhs, ErrMessage, __LINE__, __FILE__)
-#define EXPECT_EQ(lhs, rhs) compare(lhs, rhs, __LINE__, __FILE__)
-#define EXPECT_SET(cmp) compare(cmp, __LINE__, __FILE__)
+#define EXPECT_EQ_MSG(lhs, rhs, ErrMessage) compare(lhs, rhs, ErrMessage, __LINE__, __FILE__, __FUNCTION__)
+#define EXPECT_EQ(lhs, rhs) compare(lhs, rhs, __LINE__, __FILE__, __FUNCTION__)
+#define EXPECT_SET(cmp) compare(cmp, __LINE__, __FILE__, __FUNCTION__)
+
+void summary() {
+  std::cout << "\n\033[1;34mSUMMARY:\n";
+  if (number_of_failed > 0)
+    std::cout << "\033[1;31m[" << number_of_failed << "/" <<number_of_tests<< "] TESTS FAILED\n";
+  if (number_of_passed > 0)
+    std::cout << "\033[1;32m[" << number_of_passed << "/" <<number_of_tests<< "] TESTS PASSED\n";
+}
 
 void testSetVar() {
   Sat::Sat_t Sat({{1, 2, -3}, {-1, 2}});
@@ -146,4 +167,6 @@ int main(int argc, char **argv) {
   testSimplestFind2();
   testFileInput();
   testUf();
+
+  summary();
 }
