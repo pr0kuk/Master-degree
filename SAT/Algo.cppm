@@ -9,10 +9,8 @@ export import Sat;
 
 namespace detail {
 
-template <size_t N>
-std::optional<std::bitset<N>>
-simplestFind(const Sat::Sat_t &Sat, size_t VarCount = N,
-             std::bitset<N> VarSets = std::bitset<N>{});
+// returns true if found
+bool simplestFind(const Sat::Sat_t &Sat, std::vector<char> &VarSets);
 
 } // namespace detail
 
@@ -20,7 +18,6 @@ export namespace Algo {
 
 bool simplestCheck(const Sat::Sat_t &Sat, size_t VarCount = 0);
 
-template <size_t N>
 std::optional<std::string> simplestFind(const Sat::Sat_t &Sat);
 
 } // namespace Algo
@@ -34,33 +31,31 @@ bool Algo::simplestCheck(const Sat::Sat_t &Sat, size_t VarCount) {
          simplestCheck(Sat.setVar(-VarCount), VarCount - 1);
 }
 
-template <size_t N>
 std::optional<std::string> Algo::simplestFind(const Sat::Sat_t &Sat) {
-  auto VarSet = detail::simplestFind<N>(Sat);
-  if (!VarSet)
+  std::vector<char> VarSet(Sat.getVarCount(), 0);
+  if (!detail::simplestFind(Sat, VarSet))
     return std::nullopt;
+
   std::string result = "";
-  for (size_t i = 0; i < N; ++i) {
-    result += VarSet->test(i) ? "x" : "~x";
+  for (int i = 0; i < VarSet.size(); ++i) {
+    result += VarSet[i] ? "x" : "~x";
     result += std::to_string(i + 1) + " ";
   }
   return result;
 }
 
-template <size_t N>
-std::optional<std::bitset<N>> detail::simplestFind(const Sat::Sat_t &Sat,
-                                                   size_t VarCount,
-                                                   std::bitset<N> VarSets) {
+bool detail::simplestFind(const Sat::Sat_t &Sat, std::vector<char> &VarSets) {
+  auto VarCount = Sat.getVarCount();
   if (VarCount == 0)
-    return Sat ? std::make_optional(VarSets) : std::nullopt;
+    return Sat;
 
-  if (auto Set = simplestFind(Sat.setVar(-VarCount), VarCount - 1, VarSets))
-    return Set;
+  if (simplestFind(Sat.setLastVar(false), VarSets))
+    return true;
 
-  std::bitset<N> NextVarSets = VarSets;
-  NextVarSets.set(VarCount - 1);
+  VarSets[VarCount - 1] = 1;
+  if (simplestFind(Sat.setLastVar(true), VarSets))
+    return true;
+  VarSets[VarCount - 1] = 0;
 
-  if (auto Set = simplestFind(Sat.setVar(VarCount), VarCount - 1, NextVarSets))
-    return Set;
-  return std::nullopt;
+  return false;
 }

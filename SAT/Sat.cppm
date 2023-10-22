@@ -1,6 +1,7 @@
 module;
 
 #include <algorithm>
+#include <cassert>
 
 export module Sat;
 
@@ -25,16 +26,19 @@ class Sat_t final {
   SatValue_t Value;
   static std::string toVariableDump(int Num);
   int VarCount = 0;
+
 public:
-  Sat_t(SatValue_t &&NewValue, int VarCount = 0) : Value(std::move(NewValue)), VarCount(VarCount) {}
-  int getVarCount() {return VarCount;}
+  Sat_t(SatValue_t &&NewValue, int VarCount = 0)
+      : Value(std::move(NewValue)), VarCount(VarCount) {}
+  int getVarCount() const { return VarCount; }
   std::string dumpStr() const;
   void dump(std::string ExtraMsg = "Current SAT:") const;
+
   Sat_t setVar(int VarSet) const;
+  Sat_t setLastVar(bool Var) const;
 
   operator bool() const { return Value.empty(); }
 };
-
 
 Sat::Sat_t inputFromFile(std::string FileName) {
   std::ifstream In(FileName);
@@ -46,18 +50,18 @@ Sat::Sat_t inputFromFile(std::string FileName) {
   if (In.is_open()) {
     while (std::getline(In, Line) && !Flag) {
       if (Line[0] == 'c')
-          continue;
+        continue;
       std::istringstream Ist(Line);
       if (Line[0] == 'p') {
-          std::string Word;
-          Ist >> Word;
-          Ist >> Word;
-          Ist >> Word;
-          VarCount = atoi(Word.c_str());
-          continue;
+        std::string Word;
+        Ist >> Word;
+        Ist >> Word;
+        Ist >> Word;
+        VarCount = atoi(Word.c_str());
+        continue;
       }
 
-      for (std::string Word; Ist >> Word; ) {
+      for (std::string Word; Ist >> Word;) {
         if (Word == "%")
           Flag = true;
         if (Word != "0")
@@ -69,7 +73,7 @@ Sat::Sat_t inputFromFile(std::string FileName) {
       }
     }
   }
-  In.close(); 
+  In.close();
   Sat::Sat_t Sat(std::move(Clauses), VarCount);
   return Sat;
 }
@@ -99,9 +103,10 @@ void Sat::Sat_t::dump(std::string ExtraMsg) const {
   std::cout << ExtraMsg << "\n" << dumpStr() << "\n";
 }
 
-
-
 Sat::Sat_t Sat::Sat_t::setVar(int VarSet) const {
+  // assert(VarCount > 0 && VarSet > 0 && VarSet <= VarCount && "Set variable
+  // can be in [1, VarCount]");
+
   SatValue_t Output;
   Output.reserve(Value.size());
   for (const auto &Clause : Value) {
@@ -113,5 +118,10 @@ Sat::Sat_t Sat::Sat_t::setVar(int VarSet) const {
                  [VarSet](int Var) { return Var != -VarSet; });
     Output.push_back(std::move(ClauseVars));
   }
-  return Output;
+  return Sat_t{std::move(Output), VarCount - 1};
+}
+
+Sat::Sat_t Sat::Sat_t::setLastVar(bool Var) const {
+  assert(VarCount > 0 && "VarCount can't be 0!");
+  return setVar(Var ? VarCount : -VarCount);
 }
