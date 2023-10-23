@@ -15,14 +15,6 @@ target_sources(Common
       Common.cxx
 )
 
-add_library(BaseSat)
-# Add the module file to the library
-target_sources(BaseSat
-  PUBLIC
-    FILE_SET CXX_MODULES FILES
-      BaseSat.cxx
-)
-
 add_library(Sat)
 target_sources(Sat
   PUBLIC
@@ -39,7 +31,15 @@ target_sources(Sat2
       BaseSat.cxx 
 )
 
+add_library(Sat3)
+target_sources(Sat3
+  PUBLIC
+    FILE_SET CXX_MODULES FILES
+      Sat3.cxx
+      BaseSat.cxx 
+)
+
 # Create an executable
 add_executable(test test.cxx)
 # Link to the library foo
-target_link_libraries(test BaseSat Sat Sat2 Common)
+target_link_libraries(test Sat Sat2 Sat3 Common)

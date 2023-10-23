@@ -44,8 +44,11 @@ public:
   virtual std::optional<std::string> find() const = 0;
 
   int getVarCount() const { return VarCount; }
-  operator bool() const { return Value.empty(); }
-  virtual bool canBeTrue() const { return Value.empty() || (VarCount == 0); }
+  std::vector<int> getClause(int N) const { return Value[N]; }
+
+  bool isEmpty() const { return Value.empty(); }
+  virtual bool canBeTrue() const { return isEmpty() || (VarCount == 0); }
+  virtual operator bool() const { return isEmpty(); }
 
   std::string dumpStr() const;
   void dump(std::string ExtraMsg = "Current SAT:") const;

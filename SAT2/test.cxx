@@ -7,6 +7,7 @@
 
 import Sat;
 import Sat2;
+import Sat3;
 import Common;
 
 template <class T1, class T2>
@@ -94,7 +95,8 @@ template <typename SatT> void testCheck() {
   EXPECT_EQ(SatFalse.check(), false);
 }
 
-template <typename SatT> void testFind() { // to implement
+// not for sat3
+template <typename SatT> void testFind() {
   SatT SatFalse(1, {{1}, {-1}});
   EXPECT_EQ(SatFalse.find().has_value(), false);
 
@@ -112,6 +114,24 @@ template <typename SatT> void testFind() { // to implement
   SatT Sat4(2, {{1, 2}, {-1, 2}});
   EXPECT_EQ(*Sat4.find(), "~x1 x2 ");
 }
+void testFind3() { // to implement
+  Sat3_t SatFalse(1, {{1}, {-1}});
+  EXPECT_EQ(SatFalse.find().has_value(), false);
+
+  Sat3_t Sat1(3, {{1, 2, -3}, {-1, 2}});
+  auto Set1Str = Sat1.find();
+  EXPECT_EQ(Set1Str.has_value(), true);
+  EXPECT_EQ(*Set1Str, "x1 x2 ~x3 ");
+
+  Sat3_t Sat2(3, {{1, 2, -3}, {1, 2}});
+  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3 ");
+
+  Sat3_t Sat3(2, {{1, -2}, {1, 2}});
+  EXPECT_EQ(*Sat3.find(), "x1 ~x2 ");
+
+  Sat3_t Sat4(2, {{1, 2}, {-1, 2}});
+  EXPECT_EQ(*Sat4.find(), "x1 x2 ");
+}
 
 int main() {
   testForTest();
@@ -121,5 +141,7 @@ int main() {
   testFind<Sat1_t>();
   testCheck<Sat2_t>();
   testFind<Sat2_t>();
+  testCheck<Sat3_t>();
+  testFind3(); // different method to find final result
   summary();
 }

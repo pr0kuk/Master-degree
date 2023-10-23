@@ -67,7 +67,7 @@ std::optional<std::string> Sat1_t::find() const {
 template <typename S_t>
 bool detailSat1::find(const S_t &S, std::vector<char> &VarSets) {
   if (S->getVarCount() == 0)
-    return *S;
+    return S->isEmpty();
 
   if (find(S->setLastVar(false), VarSets))
     return true;
