@@ -76,8 +76,9 @@ void testSetVar() {
 }
 
 void testFileInput() {
-  auto [VarCount, Value] = inputFromFile(std::filesystem::current_path() /
-                                         "cnf/for_tests/manual.cnf");
+  auto [VarCount, Value] =
+      inputFromFile(std::filesystem::path(__FILE__).parent_path() /
+                    "cnf/for_tests/manual.cnf");
   Sat1_t SatManual(VarCount, std::move(Value));
   EXPECT_EQ(SatManual.dumpStr(), "( x1 | x2 | ~x3 ) & ( ~x1 | x2 )");
 }
