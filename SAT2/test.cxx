@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <numeric>
-
+#include <optional>
 import Sat;
 import Sat2;
 import Sat3;
