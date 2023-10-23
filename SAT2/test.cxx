@@ -151,7 +151,8 @@ void testFind3() { // to implement
   EXPECT_EQ(*Sat4.find(), "x1 x2 ");
 }
 
-template <typename SatT> void testUf(std::string Path = "cnf/for_tests", std::string output_file = "") {
+template <typename SatT> void testUf(std::string Path = std::filesystem::path(__FILE__).parent_path() /
+                    "cnf/for_tests", std::string output_file = "") {
   std::vector<std::chrono::duration<double>> time_algo, time_algo2;
   std::vector<std::string> files;
   std::chrono::time_point<std::chrono::steady_clock> start, end;
@@ -223,7 +224,9 @@ int main(int argc, char** argv) {
   for(auto d:Dirs){
     auto s = d;
     std::replace(s.begin(),s.end(),'/','_');
-    testUf<Sat3_t>(d, "data/"+s+".data");
+    testUf<Sat1_t>(d, std::filesystem::path(__FILE__).parent_path() /"data/"/(s+"_sat1.data"));
+    testUf<Sat2_t>(d, std::filesystem::path(__FILE__).parent_path() /"data/"/(s+"_sat2.data"));
+    testUf<Sat3_t>(d, std::filesystem::path(__FILE__).parent_path() /"data/"/(s+"_sat3.data"));
   }
   summary();
 }
