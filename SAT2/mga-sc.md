@@ -1,2 +1,0 @@
-CXX=clang++-17 CC=clang-17 /home/mark/packages/cmake-3.28.0-rc2-linux-x86_64/bin/cmake -S . -B build -GNinja -DCMAKE_MAKE_PROGRAM=/home/mark/packages/ninja
-/home/mark/packages/cmake-3.28.0-rc2-linux-x86_64/bin/cmake --build build
