@@ -110,50 +110,48 @@ void testFileInput() {
   EXPECT_EQ(Algo2::simplestCheck(SatTrue2, 3), true);
 }
 
-void testUf(std::vector<std::string> Dirs = {"cnf/for_tests"}) {
+void testUf(std::string Path = "cnf/for_tests", std::string output_file = "") {
   std::vector<std::chrono::duration<double>> time_algo, time_algo2;
   std::vector<std::string> files;
   std::chrono::time_point<std::chrono::steady_clock> start, end;
-  if (Dirs.empty())
-    Dirs.push_back("cnf/for_tests");
-      for (auto path : Dirs) {
-    std::cout << path << "/" << std::endl;
-    for (const auto &entry : std::filesystem::directory_iterator(path)) {
-      std::cout << std::string(entry.path()) << std::endl;
-      Sat::Sat_t SatTrue = Sat::inputFromFile(entry.path());
-      Sat2::Sat_t SatTrue2 = Sat2::inputFromFile(entry.path());
-      EXPECT_EQ_MSG(SatTrue.dumpStr(), SatTrue2.dumpStr(),
-                    std::string(entry.path()) + " input differs in Sat and Sat2");
+  std::cout << Path << "/" << std::endl;
+  for (const auto &entry : std::filesystem::directory_iterator(Path)) {
+    std::cout << std::string(entry.path()) << std::endl;
+    Sat::Sat_t SatTrue = Sat::inputFromFile(entry.path());
+    Sat2::Sat_t SatTrue2 = Sat2::inputFromFile(entry.path());
+    EXPECT_EQ_MSG(SatTrue.dumpStr(), SatTrue2.dumpStr(),
+                  std::string(entry.path()) + " input differs in Sat and Sat2");
 
-      EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, SatTrue.getVarCount()), true,
-                    std::string(entry.path()) +
-                        " should be SAT, but Algo::simplestCheck says UNSAT");
-      EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, SatTrue2.getVarCount()), true,
-                    std::string(entry.path()) +
-                        " should be SAT, but Algo2::simplestCheck says UNSAT");
+    EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, SatTrue.getVarCount()), true,
+                  std::string(entry.path()) +
+                      " should be SAT, but Algo::simplestCheck says UNSAT");
+    EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, SatTrue2.getVarCount()), true,
+                  std::string(entry.path()) +
+                      " should be SAT, but Algo2::simplestCheck says UNSAT");
 
-      start = std::chrono::steady_clock::now();
-      auto Set1 = Algo::simplestFind(SatTrue);
-      end = std::chrono::steady_clock::now();
-      time_algo.push_back(end - start);
-      start = end;
-      auto Set2 = Algo2::simplestFind(SatTrue2);
-      end = std::chrono::steady_clock::now();
-      time_algo2.push_back(end - start);
-      files.push_back(std::string(entry.path()));
+    start = std::chrono::steady_clock::now();
+    auto Set1 = Algo::simplestFind(SatTrue);
+    end = std::chrono::steady_clock::now();
+    time_algo.push_back(end - start);
+    start = end;
+    auto Set2 = Algo2::simplestFind(SatTrue2);
+    end = std::chrono::steady_clock::now();
+    time_algo2.push_back(end - start);
+    files.push_back(std::string(entry.path()));
 
-      EXPECT_EQ_MSG(Set1.has_value(), true,
-                    std::string(entry.path()) +
-                        " should be SAT, but Algo::simplestFind says UNSAT");
-      EXPECT_EQ_MSG(Set2.has_value(), true,
-                    std::string(entry.path()) +
-                        " should be SAT, but Algo2::simplestFind says UNSAT");
+    EXPECT_EQ_MSG(Set1.has_value(), true,
+                  std::string(entry.path()) +
+                      " should be SAT, but Algo::simplestFind says UNSAT");
+    EXPECT_EQ_MSG(Set2.has_value(), true,
+                  std::string(entry.path()) +
+                      " should be SAT, but Algo2::simplestFind says UNSAT");
 
-      // SatTrue.dump();
-      // SatTrue2.dump();
-    }
-    /* this is time output */
-    std::fstream fs("benchmark.data",std::fstream::trunc|std::fstream::out);
+    // SatTrue.dump();
+    // SatTrue2.dump();
+  }
+  /* this is time output */
+  if (output_file != "") {
+    std::fstream fs(output_file,std::fstream::trunc|std::fstream::out);
     if (fs.is_open()) {
       for (auto f:files)
         fs << f << " ";
@@ -164,7 +162,7 @@ void testUf(std::vector<std::string> Dirs = {"cnf/for_tests"}) {
       for (auto i:time_algo2)
         fs << std::setprecision (3) << (i).count() << " ";
       fs << std::endl;
-    } else std::cout << "fs isnt opened!\n";
+    } else std::cout << "fs("+output_file+") isnt opened!\n";
     double s1=0, s2 = 0;
     for (auto i:time_algo)
       s1 += i.count();
@@ -172,7 +170,6 @@ void testUf(std::vector<std::string> Dirs = {"cnf/for_tests"}) {
       s2 += i.count();
     fs << "Mean Algo " << s1/time_algo.size() << std::endl;
     fs << "Mean Algo2 " << s2/time_algo2.size() << std::endl;
-
   }
 }
 
@@ -240,7 +237,12 @@ int main(int argc, char **argv) {
   testSimplestFind();
   testSimplestFind2();
   testFileInput();
-  testUf(getDirs(argc, argv));
-
+  testUf();
+  auto Dirs = getDirs(argc, argv);
+  for(auto d:Dirs){
+    auto s = d;
+    std::replace(s.begin(),s.end(),'/','_');
+    testUf(d, "data/"+s+".data");
+  }
   summary();
 }
