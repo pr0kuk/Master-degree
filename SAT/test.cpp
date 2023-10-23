@@ -1,8 +1,10 @@
 import Algo;
 import Algo2;
 import <filesystem>;
+import <fstream>;
 import <chrono>;
 import <iomanip>;
+import <numeric>;
 template <class T>
 concept equality_comparable = requires(T a, T b) {
   a == b;
@@ -99,8 +101,8 @@ void testSimplestCheck() {
 }
 
 void testFileInput() {
-  Sat::Sat_t SatTrue = Sat::inputFromFile("cnf/manual.cnf");
-  Sat2::Sat_t SatTrue2 = Sat2::inputFromFile("cnf/manual.cnf");
+  Sat::Sat_t SatTrue = Sat::inputFromFile("cnf/for_tests/manual.cnf");
+  Sat2::Sat_t SatTrue2 = Sat2::inputFromFile("cnf/for_tests/manual.cnf");
   EXPECT_EQ(SatTrue.dumpStr(), std::string("( x1 | x2 | ~x3 ) & ( ~x1 | x2 )"));
   EXPECT_EQ(Algo::simplestCheck(SatTrue, 3), true);
   EXPECT_EQ(SatTrue2.dumpStr(),
@@ -108,52 +110,70 @@ void testFileInput() {
   EXPECT_EQ(Algo2::simplestCheck(SatTrue2, 3), true);
 }
 
-void testUf() {
+void testUf(std::vector<std::string> Dirs = {"cnf/for_tests"}) {
   std::vector<std::chrono::duration<double>> time_algo, time_algo2;
+  std::vector<std::string> files;
   std::chrono::time_point<std::chrono::steady_clock> start, end;
-  std::string path = "./cnf";
-  for (const auto &entry : std::filesystem::directory_iterator(path)) {
-    Sat::Sat_t SatTrue = Sat::inputFromFile(entry.path());
-    Sat2::Sat_t SatTrue2 = Sat2::inputFromFile(entry.path());
-    EXPECT_EQ_MSG(SatTrue.dumpStr(), SatTrue2.dumpStr(),
-                  std::string(entry.path()) + " input differs in Sat and Sat2");
+  if (Dirs.empty())
+    Dirs.push_back("cnf/for_tests");
+      for (auto path : Dirs) {
+    std::cout << path << "/" << std::endl;
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+      std::cout << std::string(entry.path()) << std::endl;
+      Sat::Sat_t SatTrue = Sat::inputFromFile(entry.path());
+      Sat2::Sat_t SatTrue2 = Sat2::inputFromFile(entry.path());
+      EXPECT_EQ_MSG(SatTrue.dumpStr(), SatTrue2.dumpStr(),
+                    std::string(entry.path()) + " input differs in Sat and Sat2");
 
-    EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, SatTrue.getVarCount()), true,
-                  std::string(entry.path()) +
-                      " should be SAT, but Algo::simplestCheck says UNSAT");
-    EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, SatTrue2.getVarCount()), true,
-                  std::string(entry.path()) +
-                      " should be SAT, but Algo2::simplestCheck says UNSAT");
+      EXPECT_EQ_MSG(Algo::simplestCheck(SatTrue, SatTrue.getVarCount()), true,
+                    std::string(entry.path()) +
+                        " should be SAT, but Algo::simplestCheck says UNSAT");
+      EXPECT_EQ_MSG(Algo2::simplestCheck(SatTrue2, SatTrue2.getVarCount()), true,
+                    std::string(entry.path()) +
+                        " should be SAT, but Algo2::simplestCheck says UNSAT");
 
-    start = std::chrono::steady_clock::now();
-    auto Set1 = Algo::simplestFind(SatTrue);
-    end = std::chrono::steady_clock::now();
-    time_algo.push_back(end - start);
-    start = end;
-    auto Set2 = Algo2::simplestFind(SatTrue2);
-    end = std::chrono::steady_clock::now();
-    time_algo2.push_back(end - start);
-    start = end;
+      start = std::chrono::steady_clock::now();
+      auto Set1 = Algo::simplestFind(SatTrue);
+      end = std::chrono::steady_clock::now();
+      time_algo.push_back(end - start);
+      start = end;
+      auto Set2 = Algo2::simplestFind(SatTrue2);
+      end = std::chrono::steady_clock::now();
+      time_algo2.push_back(end - start);
+      files.push_back(std::string(entry.path()));
 
-    EXPECT_EQ_MSG(Set1.has_value(), true,
-                  std::string(entry.path()) +
-                      " should be SAT, but Algo::simplestFind says UNSAT");
-    EXPECT_EQ_MSG(Set2.has_value(), true,
-                  std::string(entry.path()) +
-                      " should be SAT, but Algo2::simplestFind says UNSAT");
+      EXPECT_EQ_MSG(Set1.has_value(), true,
+                    std::string(entry.path()) +
+                        " should be SAT, but Algo::simplestFind says UNSAT");
+      EXPECT_EQ_MSG(Set2.has_value(), true,
+                    std::string(entry.path()) +
+                        " should be SAT, but Algo2::simplestFind says UNSAT");
 
-    // SatTrue.dump();
-    // SatTrue2.dump();
+      // SatTrue.dump();
+      // SatTrue2.dump();
+    }
+    /* this is time output */
+    std::fstream fs("benchmark.data",std::fstream::trunc|std::fstream::out);
+    if (fs.is_open()) {
+      for (auto f:files)
+        fs << f << " ";
+      fs << std::endl;
+      for (auto i:time_algo)
+        fs << std::setprecision (3) << i.count() << " ";
+      fs << std::endl;
+      for (auto i:time_algo2)
+        fs << std::setprecision (3) << (i).count() << " ";
+      fs << std::endl;
+    } else std::cout << "fs isnt opened!\n";
+    double s1=0, s2 = 0;
+    for (auto i:time_algo)
+      s1 += i.count();
+    for (auto i:time_algo2)
+      s2 += i.count();
+    fs << "Mean Algo " << s1/time_algo.size() << std::endl;
+    fs << "Mean Algo2 " << s2/time_algo2.size() << std::endl;
+
   }
-
-  /* this is time output
-  std::cout << std::endl;
-  for (auto i:time_algo)
-    std::cout << std::setprecision (3) << i.count() << " ";
-  std::cout << std::endl;
-  for (auto i:time_algo2)
-    std::cout << std::setprecision (3) << (i).count() << " ";
-  std::cout << std::endl; */
 }
 
 void testSimplestFind() { // to implement
@@ -197,13 +217,30 @@ void testSimplestFind2() { // to implement
   EXPECT_EQ(*Algo2::simplestFind(Sat4), std::string("~x1 x2 "));
 }
 
+std::vector<std::string> getDirs(int argc, char** argv) {
+  bool Flag = false;
+  std::vector<std::string> SArgv;
+  for (int i = 1; i < argc; i++)
+    SArgv.push_back(std::string(argv[i]));
+  std::vector<std::string> Dirs;
+  for (auto s: SArgv) {
+    if (s[0] == '-' && s != "-dir")
+      Flag = false;
+    if (Flag == true)
+      Dirs.push_back(s);
+    if (s == "-dir")
+      Flag = true;
+  }
+  return Dirs;
+}
+
 int main(int argc, char **argv) {
   testSetVar();
   testSimplestCheck();
   testSimplestFind();
   testSimplestFind2();
   testFileInput();
-  testUf();
+  testUf(getDirs(argc, argv));
 
   summary();
 }
