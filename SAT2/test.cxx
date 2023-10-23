@@ -133,6 +133,23 @@ void testFind3() { // to implement
   EXPECT_EQ(*Sat4.find(), "x1 x2 ");
 }
 
+std::vector<std::string> getDirs(int argc, char** argv) {
+  bool Flag = false;
+  std::vector<std::string> SArgv;
+  for (int i = 1; i < argc; i++)
+    SArgv.push_back(std::string(argv[i]));
+  std::vector<std::string> Dirs;
+  for (auto s: SArgv) {
+    if (s[0] == '-' && s != "-dir")
+      Flag = false;
+    if (Flag == true)
+      Dirs.push_back(s);
+    if (s == "-dir")
+      Flag = true;
+  }
+  return Dirs;
+}
+
 int main() {
   testForTest();
   testSetVar();
