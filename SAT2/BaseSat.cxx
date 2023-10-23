@@ -5,6 +5,7 @@ module;
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <vector>
 
 // first thing after the Global module fragment must be a module command
@@ -38,6 +39,9 @@ public:
   // to implement by optimizations
   virtual Sat setVar(int VarSet) const = 0;
   Sat setLastVar(bool Var) const;
+
+  virtual bool check() const = 0;
+  virtual std::optional<std::string> find() const = 0;
 
   int getVarCount() const { return VarCount; }
   operator bool() const { return Value.empty(); }

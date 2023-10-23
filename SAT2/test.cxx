@@ -73,6 +73,8 @@ void testSetVar() {
   EXPECT_EQ(Output3->dumpStr(), "");
   auto Output4 = Sat1.setVar(3);
   EXPECT_EQ(Output4->dumpStr(), "( x1 | x2 ) & ( ~x1 | x2 )");
+  auto Output5 = Sat1.setLastVar(false);
+  EXPECT_EQ(Output5->dumpStr(), "( ~x1 | x2 )");
 }
 
 void testFileInput() {
@@ -83,9 +85,38 @@ void testFileInput() {
   EXPECT_EQ(SatManual.dumpStr(), "( x1 | x2 | ~x3 ) & ( ~x1 | x2 )");
 }
 
+template <typename SatT> void testCheck() {
+  SatT SatTrue(3, {{1, 2, -3}, {-1, 2}});
+  EXPECT_EQ(SatTrue.check(), true);
+
+  SatT SatFalse(1, {{1}, {-1}});
+  EXPECT_EQ(SatFalse.check(), false);
+}
+
+template <typename SatT> void testFind() { // to implement
+  SatT SatFalse(1, {{1}, {-1}});
+  EXPECT_EQ(SatFalse.find().has_value(), false);
+
+  SatT Sat1(3, {{1, 2, -3}, {-1, 2}});
+  auto Set1Str = Sat1.find();
+  EXPECT_EQ(Set1Str.has_value(), true);
+  EXPECT_EQ(*Set1Str, "~x1 ~x2 ~x3 ");
+
+  SatT Sat2(3, {{1, 2, -3}, {1, 2}});
+  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3 ");
+
+  SatT Sat3(2, {{1, -2}, {1, 2}});
+  EXPECT_EQ(*Sat3.find(), "x1 ~x2 ");
+
+  SatT Sat4(2, {{1, 2}, {-1, 2}});
+  EXPECT_EQ(*Sat4.find(), "~x1 x2 ");
+}
+
 int main() {
   testForTest();
   testSetVar();
   testFileInput();
+  testCheck<Sat1_t>();
+  testFind<Sat1_t>();
   summary();
 }
