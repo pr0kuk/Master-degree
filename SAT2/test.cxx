@@ -22,6 +22,23 @@ std::string getBaseName(std::string Name) {
   auto Pos = Name.rfind('/') + 1;
   return Name.substr(Pos, Name.size() - Pos);
 }
+template <typename T1, equality_comparable<T1> T2>
+bool compare(T1 Lhs, T2 Rhs, std::string ErrMessage, size_t Line,
+             const char Filename[], const char Functionname[]) {
+  //number_of_tests++;
+  if (Lhs == Rhs) {
+    //number_of_passed++;
+    // std::cout << "\033[1;32mPASSED!\033[0m\n";
+    return true;
+  }
+  //number_of_failed++;
+  std::cout << "\033[1;31mTEST \"" << Functionname << "\" FAILED!\n";
+  std::cout << "Where: " << Filename << ":" << Line << std::endl;
+  std::cout << "\033[1;34mLhs: " << Lhs << "\nRhs: " << Rhs << "\033[0m"
+            << std::endl;
+  std::cout << "\033[1;33m" + ErrMessage << "\033[0m" << std::endl;
+  return false;
+}
 
 template <typename T1, equality_comparable<T1> T2>
 bool compare(T1 Lhs, T2 Rhs, std::string LhsMsg, std::string RhsMsg,
@@ -52,7 +69,8 @@ void summary() {
     std::cout << "\033[1;32m[" << NumPass << "/" << NumFail + NumPass
               << "] TESTS PASSED\n";
 }
-
+#define EXPECT_EQ_MSG(lhs, rhs, ErrMessage)                                    \
+  compare(lhs, rhs, ErrMessage, __LINE__, __FILE__, __FUNCTION__)
 #define EXPECT_EQ(lhs, rhs)                                                    \
   compare(lhs, rhs, #lhs, #rhs, __LINE__, __FILE__, __FUNCTION__, true)
 #define EXPECT_NEQ(lhs, rhs)                                                   \
