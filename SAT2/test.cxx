@@ -163,7 +163,7 @@ template <typename SatT> void testUf(std::string Path = std::filesystem::path(__
     SatT SatTrue(VarCount, std::move(Value));
     EXPECT_EQ_MSG(SatTrue.check(), true,
                   std::string(entry.path()) +
-                      " should be SAT, but Algo::simplestCheck says UNSAT");
+                      " should be SAT, but check() says UNSAT");
     start = std::chrono::steady_clock::now();
     auto Set1 = SatTrue.find();
     end = std::chrono::steady_clock::now();
@@ -173,7 +173,7 @@ template <typename SatT> void testUf(std::string Path = std::filesystem::path(__
 
     EXPECT_EQ_MSG(Set1.has_value(), true,
                   std::string(entry.path()) +
-                      " should be SAT, but Algo::simplestFind says UNSAT");
+                      " should be SAT, but find() says UNSAT");
   }
   /* this is time output */
   if (output_file != "") {
