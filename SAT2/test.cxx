@@ -133,6 +133,47 @@ void testFind3() { // to implement
   EXPECT_EQ(*Sat4.find(), "x1 x2 ");
 }
 
+template <typename SatT> void testUf(std::string Path = "cnf/for_tests", std::string output_file = "") {
+  std::vector<std::chrono::duration<double>> time_algo, time_algo2;
+  std::vector<std::string> files;
+  std::chrono::time_point<std::chrono::steady_clock> start, end;
+  std::cout << Path << "/" << std::endl;
+  for (const auto &entry : std::filesystem::directory_iterator(Path)) {
+    std::cout << std::string(entry.path()) << std::endl;
+    auto [VarCount, Value] = inputFromFile(entry.path());
+    SatT SatTrue(VarCount, std::move(Value));
+    EXPECT_EQ_MSG(SatTrue.check(), true,
+                  std::string(entry.path()) +
+                      " should be SAT, but Algo::simplestCheck says UNSAT");
+    start = std::chrono::steady_clock::now();
+    auto Set1 = SatTrue.find();
+    end = std::chrono::steady_clock::now();
+    time_algo.push_back(end - start);
+
+    files.push_back(std::string(entry.path()));
+
+    EXPECT_EQ_MSG(Set1.has_value(), true,
+                  std::string(entry.path()) +
+                      " should be SAT, but Algo::simplestFind says UNSAT");
+  }
+  /* this is time output */
+  if (output_file != "") {
+    std::fstream fs(output_file,std::fstream::trunc|std::fstream::out);
+    if (fs.is_open()) {
+      for (auto f:files)
+        fs << f << " ";
+      fs << std::endl;
+      for (auto i:time_algo)
+        fs << std::setprecision (3) << i.count() << " ";
+      fs << std::endl;
+    } else std::cout << "fs("+output_file+") isnt opened!\n";
+    double s1=0, s2 = 0;
+    for (auto i:time_algo)
+      s1 += i.count();
+    fs << "Mean Algo " << s1/time_algo.size() << std::endl;
+  }
+}
+
 std::vector<std::string> getDirs(int argc, char** argv) {
   bool Flag = false;
   std::vector<std::string> SArgv;
@@ -150,7 +191,7 @@ std::vector<std::string> getDirs(int argc, char** argv) {
   return Dirs;
 }
 
-int main() {
+int main(int argc, char** argv) {
   testForTest();
   testSetVar();
   testFileInput();
@@ -160,5 +201,11 @@ int main() {
   testFind<Sat2_t>();
   testCheck<Sat3_t>();
   testFind3(); // different method to find final result
+  auto Dirs = getDirs(argc, argv);
+  for(auto d:Dirs){
+    auto s = d;
+    std::replace(s.begin(),s.end(),'/','_');
+    testUf<Sat3_t>(d, "data/"+s+".data");
+  }
   summary();
 }
