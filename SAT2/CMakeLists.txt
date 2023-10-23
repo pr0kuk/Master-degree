@@ -7,12 +7,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set the version of C++ for the project
 set(CMAKE_CXX_STANDARD 20)
 # Create a library
-add_library(Sat)
-target_sources(Sat
+
+add_library(Common)
+target_sources(Common
   PUBLIC
     FILE_SET CXX_MODULES FILES
-      Sat.cxx
-      BaseSat.cxx 
+      Common.cxx
 )
 
 add_library(BaseSat)
@@ -22,7 +22,16 @@ target_sources(BaseSat
     FILE_SET CXX_MODULES FILES
       BaseSat.cxx
 )
+
+add_library(Sat)
+target_sources(Sat
+  PUBLIC
+    FILE_SET CXX_MODULES FILES
+      Sat.cxx
+      BaseSat.cxx 
+)
+
 # Create an executable
 add_executable(test test.cxx)
 # Link to the library foo
-target_link_libraries(test BaseSat Sat)
+target_link_libraries(test BaseSat Sat Common)

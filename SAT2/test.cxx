@@ -6,6 +6,7 @@
 #include <numeric>
 
 import Sat;
+import Common;
 
 template <class T1, class T2>
 concept equality_comparable = requires(T1 a, T2 b) {
@@ -35,8 +36,8 @@ bool compare(T1 Lhs, T2 Rhs, std::string LhsMsg, std::string RhsMsg,
   ++NumFail;
   std::cout << "\033[1;31m" << BaseFilename << ":" << Line << "\t"
             << Functionname << "\tFAILED!\033[0m\n\033[1;35m";
-  std::cout << "Left side:\t" << LhsMsg << ":\t" << Lhs << std::endl;
-  std::cout << "Right side:\t" << RhsMsg << ":\t" << Rhs << "\033[0m\n";
+  std::cout << "Left side:\t" << LhsMsg << ": " << Lhs << "\n";
+  std::cout << "Right side:\t" << RhsMsg << ": " << Rhs << "\033[0m\n";
   return false;
 }
 
@@ -74,8 +75,16 @@ void testSetVar() {
   EXPECT_EQ(Output4->dumpStr(), "( x1 | x2 ) & ( ~x1 | x2 )");
 }
 
+void testFileInput() {
+  auto [VarCount, Value] = inputFromFile(std::filesystem::current_path() /
+                                         "cnf/for_tests/manual.cnf");
+  Sat1_t SatManual(VarCount, std::move(Value));
+  EXPECT_EQ(SatManual.dumpStr(), "( x1 | x2 | ~x3 ) & ( ~x1 | x2 )");
+}
+
 int main() {
   testForTest();
   testSetVar();
+  testFileInput();
   summary();
 }
