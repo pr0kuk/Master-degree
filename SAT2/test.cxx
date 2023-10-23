@@ -6,6 +6,7 @@
 #include <numeric>
 
 import Sat;
+import Sat2;
 import Common;
 
 template <class T1, class T2>
@@ -118,5 +119,7 @@ int main() {
   testFileInput();
   testCheck<Sat1_t>();
   testFind<Sat1_t>();
+  testCheck<Sat2_t>();
+  testFind<Sat2_t>();
   summary();
 }

@@ -45,6 +45,7 @@ public:
 
   int getVarCount() const { return VarCount; }
   operator bool() const { return Value.empty(); }
+  virtual bool canBeTrue() const { return Value.empty() || (VarCount == 0); }
 
   std::string dumpStr() const;
   void dump(std::string ExtraMsg = "Current SAT:") const;

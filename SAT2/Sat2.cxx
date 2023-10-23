@@ -7,25 +7,31 @@ module;
 #include <optional>
 #include <vector>
 
-export module Sat;
+export module Sat2;
 
 export import BaseSat;
 
-namespace detailSat1 {
+namespace detailSat2 {
 template <typename S_t> bool find(const S_t &S, std::vector<char> &VarSets);
 }
 
-export class Sat1_t final : public Sat_t {
+export class Sat2_t final : public Sat_t {
+  // ---- DIFFER ----
+  bool CanBeTrue;
+  // ---- ------ ----
+
 public:
-  Sat1_t(int NewVarCount, Value_t &&NewValue)
-      : Sat_t(NewVarCount, std::move(NewValue)) {}
+  Sat2_t(int NewVarCount, Value_t &&NewValue, bool NewCanBeTrue = true)
+      : Sat_t(NewVarCount, std::move(NewValue)), CanBeTrue(NewCanBeTrue) {}
 
   Sat setVar(int VarSet) const override;
   bool check() const override;
   std::optional<std::string> find() const override;
+
+  bool canBeTrue() const override { return CanBeTrue; }
 };
 
-Sat Sat1_t::setVar(int VarSet) const {
+Sat Sat2_t::setVar(int VarSet) const {
   // can be in [1, VarCount]");
   assert(this->VarCount > 0 && "Can't be zero VarCount!");
   assert(std::abs(VarSet) <= this->VarCount &&
@@ -42,18 +48,31 @@ Sat Sat1_t::setVar(int VarSet) const {
                  [VarSet](int Var) { return Var != -VarSet; });
     Output.push_back(std::move(ClauseVars));
   }
-  return std::make_unique<Sat1_t>(VarCount - 1, std::move(Output));
+
+  // ---- DIFFER ----
+  bool OutputCanBeTrue =
+      (std::find_if(Output.begin(), Output.end(), [](const auto &vec) {
+         return vec.empty();
+       }) == Output.end());
+  // ---- ------ ----
+
+  return std::make_unique<Sat2_t>(this->VarCount - 1, std::move(Output),
+                                  OutputCanBeTrue);
 }
 
-bool Sat1_t::check() const {
+bool Sat2_t::check() const {
+  // ---- DIFFER ----
+  if (!CanBeTrue)
+    return false;
   if (this->VarCount == 0)
-    return *this;
+    return true;
+  // ---- ------ ----
   return setLastVar(true)->check() || setLastVar(false)->check();
 }
 
-std::optional<std::string> Sat1_t::find() const {
+std::optional<std::string> Sat2_t::find() const {
   std::vector<char> VarSets(this->VarCount, 0);
-  if (!detailSat1::find(this, VarSets))
+  if (!detailSat2::find(this, VarSets))
     return std::nullopt;
 
   std::string result = "";
@@ -65,7 +84,12 @@ std::optional<std::string> Sat1_t::find() const {
 }
 
 template <typename S_t>
-bool detailSat1::find(const S_t &S, std::vector<char> &VarSets) {
+bool detailSat2::find(const S_t &S, std::vector<char> &VarSets) {
+  // ---- DIFFER ----
+  if (!S->canBeTrue())
+    return false;
+  // ---- ------ ----
+
   if (S->getVarCount() == 0)
     return *S;
 
