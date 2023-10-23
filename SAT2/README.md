@@ -6,5 +6,13 @@
 * Donwload ninja-1.11+ using [link](https://github.com/ninja-build/ninja/releases)
 
 # Build project
-* In current repository create file **MyMakefile** and set there variables **CMAKE** and **NINJA** with /full/path to binaries
+* Ether set env variables **CMAKE** and **NINJA** with /full/path to binaries or add directory to **PATH** 
+* Also you can set **BUILD** env variable to specify path for binaries (default is *build*)
 * Run **make**
+* Test binary in *BUILD* folder.
+
+Example:
+```bash
+CMAKE=/.../cmake-3.28.0-rc2-linux-x86_64/bin/cmake NINJA=/.../ninja make
+./build/test
+```

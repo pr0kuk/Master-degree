@@ -1,7 +1,6 @@
 CC := clang-17
 CXX := clang++-17
 
-include MyMakefile
 CMAKE ?= cmake
 NINJA ?= ninja
 BUILD ?= build
