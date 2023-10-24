@@ -92,7 +92,7 @@ bool detailSat3::find(const S_t &S, std::vector<char> &VarSets) {
 
   for (int Var : S->getClause(0)) {
     if (find(S->setVar(Var), VarSets)) {
-      VarSets[Var - 1] = Var > 0;
+      VarSets[std::abs(Var) - 1] = Var > 0;
       return true;
     }
   }
