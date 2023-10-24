@@ -16,13 +16,14 @@ template <typename S_t> bool find(const S_t &S, std::vector<char> &VarSets);
 }
 
 export class Sat1_t final : public Sat_t {
+  bool innerFind(std::vector<char> &VarSets) const override;
+
 public:
   Sat1_t(int NewVarCount, Value_t &&NewValue)
       : Sat_t(NewVarCount, std::move(NewValue)) {}
 
   Sat setVar(int VarSet) const override;
   bool check() const override;
-  std::optional<std::string> find() const override;
 };
 
 Sat Sat1_t::setVar(int VarSet) const {
@@ -51,17 +52,8 @@ bool Sat1_t::check() const {
   return setLastVar(true)->check() || setLastVar(false)->check();
 }
 
-std::optional<std::string> Sat1_t::find() const {
-  std::vector<char> VarSets(this->VarCount, 0);
-  if (!detailSat1::find(this, VarSets))
-    return std::nullopt;
-
-  std::string result = "";
-  for (int i = 0; i < VarSets.size(); ++i) {
-    result += VarSets[i] ? "x" : "~x";
-    result += std::to_string(i + 1) + " ";
-  }
-  return result;
+bool Sat1_t::innerFind(std::vector<char> &VarSets) const {
+  return detailSat1::find(this, VarSets);
 }
 
 template <typename S_t>

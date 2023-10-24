@@ -1,9 +1,11 @@
 module;
 
 #include <cassert>
+#include <concepts>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <vector>
 
 export module Common;
@@ -29,6 +31,7 @@ inputFromFile(std::filesystem::path FilePath) {
 
   // read test data
   std::vector<std::vector<int>> Data;
+
   for (int i = 0; i < NumClauses; ++i) {
     std::vector<int> Clause;
 

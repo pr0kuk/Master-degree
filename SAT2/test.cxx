@@ -5,10 +5,11 @@
 #include <iostream>
 #include <numeric>
 #include <optional>
+
+import Common;
 import Sat;
 import Sat2;
 import Sat3;
-import Common;
 
 auto FILEPATH = std::filesystem::path(__FILE__).parent_path();
 
@@ -126,22 +127,22 @@ template <typename SatT> void testFind() {
   SatT Sat1(3, {{1, 2, -3}, {-1, 2}});
   auto Set1Str = Sat1.find();
   EXPECT_EQ(Set1Str.has_value(), true);
-  EXPECT_EQ(*Set1Str, "~x1 ~x2 ~x3 ");
+  EXPECT_EQ(*Set1Str, "~x1 ~x2 ~x3");
 
   SatT Sat2(3, {{1, 2, -3}, {1, 2}});
-  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3 ");
+  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3");
 
   SatT Sat3(2, {{1, -2}, {1, 2}});
-  EXPECT_EQ(*Sat3.find(), "x1 ~x2 ");
+  EXPECT_EQ(*Sat3.find(), "x1 ~x2");
 
   SatT Sat4(2, {{1, 2}, {-1, 2}});
-  EXPECT_EQ(*Sat4.find(), "~x1 x2 ");
+  EXPECT_EQ(*Sat4.find(), "~x1 x2");
 
   auto [VarCount, Value] =
       inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
   SatT SatBig(VarCount, std::move(Value));
   EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 ~x4 ~x5 x6 ~x7 ~x8 x9 ~x10 ~x11 ~x12 "
-                            "~x13 x14 x15 ~x16 x17 ~x18 ~x19 x20 ");
+                            "~x13 x14 x15 ~x16 x17 ~x18 ~x19 x20");
 }
 
 void testFind3() { // to implement
@@ -151,22 +152,22 @@ void testFind3() { // to implement
   Sat3_t Sat1(3, {{1, 2, -3}, {-1, 2}});
   auto Set1Str = Sat1.find();
   EXPECT_EQ(Set1Str.has_value(), true);
-  EXPECT_EQ(*Set1Str, "x1 x2 ~x3 ");
+  EXPECT_EQ(*Set1Str, "x1 x2 ~x3");
 
   Sat3_t Sat2(3, {{1, 2, -3}, {1, 2}});
-  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3 ");
+  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3");
 
   Sat3_t Sat3(2, {{1, -2}, {1, 2}});
-  EXPECT_EQ(*Sat3.find(), "x1 ~x2 ");
+  EXPECT_EQ(*Sat3.find(), "x1 ~x2");
 
   Sat3_t Sat4(2, {{1, 2}, {-1, 2}});
-  EXPECT_EQ(*Sat4.find(), "x1 x2 ");
+  EXPECT_EQ(*Sat4.find(), "x1 x2");
 
   auto [VarCount, Value] =
       inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
   Sat3_t SatBig(VarCount, std::move(Value));
-  EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 ~x4 ~x5 x6 ~x7 ~x8 x9 ~x10 ~x11 ~x12 "
-                            "~x13 x14 x15 ~x16 x17 ~x18 ~x19 x20 ");
+  EXPECT_EQ(*SatBig.find(), "~x1 x2 x3 x4 ~x5 ~x6 ~x7 x8 x9 x10 x11 ~x12 ~x13 "
+                            "x14 x15 ~x16 x17 x18 x19 x20");
 }
 
 int main(int argc, char **argv) {

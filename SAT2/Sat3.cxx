@@ -18,13 +18,14 @@ template <typename S_t> bool find(const S_t &S, std::vector<char> &VarSets);
 export class Sat3_t final : public Sat_t {
   bool CanBeTrue;
 
+  bool innerFind(std::vector<char> &VarSets) const override;
+
 public:
   Sat3_t(int NewVarCount, Value_t &&NewValue, bool NewCanBeTrue = true)
       : Sat_t(NewVarCount, std::move(NewValue)), CanBeTrue(NewCanBeTrue) {}
 
   Sat setVar(int VarSet) const override;
   bool check() const override;
-  std::optional<std::string> find() const override;
 
   bool canBeTrue() const override { return CanBeTrue; }
 };
@@ -68,17 +69,8 @@ bool Sat3_t::check() const {
   return false;
 }
 
-std::optional<std::string> Sat3_t::find() const {
-  std::vector<char> VarSets(this->VarCount, 0);
-  if (!detailSat3::find(this, VarSets))
-    return std::nullopt;
-
-  std::string result = "";
-  for (int i = 0; i < VarSets.size(); ++i) {
-    result += VarSets[i] ? "x" : "~x";
-    result += std::to_string(i + 1) + " ";
-  }
-  return result;
+bool Sat3_t::innerFind(std::vector<char> &VarSets) const {
+  return detailSat3::find(this, VarSets);
 }
 
 template <typename S_t>

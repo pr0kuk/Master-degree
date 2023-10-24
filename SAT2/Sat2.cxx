@@ -20,13 +20,14 @@ export class Sat2_t final : public Sat_t {
   bool CanBeTrue;
   // ---- ------ ----
 
+  bool innerFind(std::vector<char> &VarSets) const override;
+
 public:
   Sat2_t(int NewVarCount, Value_t &&NewValue, bool NewCanBeTrue = true)
       : Sat_t(NewVarCount, std::move(NewValue)), CanBeTrue(NewCanBeTrue) {}
 
   Sat setVar(int VarSet) const override;
   bool check() const override;
-  std::optional<std::string> find() const override;
 
   bool canBeTrue() const override { return CanBeTrue; }
 };
@@ -70,17 +71,8 @@ bool Sat2_t::check() const {
   return setLastVar(true)->check() || setLastVar(false)->check();
 }
 
-std::optional<std::string> Sat2_t::find() const {
-  std::vector<char> VarSets(this->VarCount, 0);
-  if (!detailSat2::find(this, VarSets))
-    return std::nullopt;
-
-  std::string result = "";
-  for (int i = 0; i < VarSets.size(); ++i) {
-    result += VarSets[i] ? "x" : "~x";
-    result += std::to_string(i + 1) + " ";
-  }
-  return result;
+bool Sat2_t::innerFind(std::vector<char> &VarSets) const {
+  return detailSat2::find(this, VarSets);
 }
 
 template <typename S_t>
