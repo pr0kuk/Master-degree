@@ -10,6 +10,8 @@ import Sat2;
 import Sat3;
 import Common;
 
+auto FILEPATH = std::filesystem::path(__FILE__).parent_path();
+
 template <class T1, class T2>
 concept equality_comparable = requires(T1 a, T2 b) {
   a == b;
@@ -25,13 +27,13 @@ std::string getBaseName(std::string Name) {
 template <typename T1, equality_comparable<T1> T2>
 bool compare(T1 Lhs, T2 Rhs, std::string ErrMessage, size_t Line,
              const char Filename[], const char Functionname[]) {
-  //number_of_tests++;
+  // number_of_tests++;
   if (Lhs == Rhs) {
-    //number_of_passed++;
-    // std::cout << "\033[1;32mPASSED!\033[0m\n";
+    // number_of_passed++;
+    //  std::cout << "\033[1;32mPASSED!\033[0m\n";
     return true;
   }
-  //number_of_failed++;
+  // number_of_failed++;
   std::cout << "\033[1;31mTEST \"" << Functionname << "\" FAILED!\n";
   std::cout << "Where: " << Filename << ":" << Line << std::endl;
   std::cout << "\033[1;34mLhs: " << Lhs << "\nRhs: " << Rhs << "\033[0m"
@@ -98,9 +100,7 @@ void testSetVar() {
 }
 
 void testFileInput() {
-  auto [VarCount, Value] =
-      inputFromFile(std::filesystem::path(__FILE__).parent_path() /
-                    "cnf/for_tests/manual.cnf");
+  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/for_tests/manual.cnf");
   Sat1_t SatManual(VarCount, std::move(Value));
   EXPECT_EQ(SatManual.dumpStr(), "( x1 | x2 | ~x3 ) & ( ~x1 | x2 )");
 }
@@ -111,6 +111,11 @@ template <typename SatT> void testCheck() {
 
   SatT SatFalse(1, {{1}, {-1}});
   EXPECT_EQ(SatFalse.check(), false);
+
+  auto [VarCount, Value] =
+      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
+  Sat1_t SatBig(VarCount, std::move(Value));
+  EXPECT_EQ(SatBig.check(), true);
 }
 
 // not for sat3
@@ -131,7 +136,14 @@ template <typename SatT> void testFind() {
 
   SatT Sat4(2, {{1, 2}, {-1, 2}});
   EXPECT_EQ(*Sat4.find(), "~x1 x2 ");
+
+  auto [VarCount, Value] =
+      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
+  SatT SatBig(VarCount, std::move(Value));
+  EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 ~x4 ~x5 x6 ~x7 ~x8 x9 ~x10 ~x11 ~x12 "
+                            "~x13 x14 x15 ~x16 x17 ~x18 ~x19 x20 ");
 }
+
 void testFind3() { // to implement
   Sat3_t SatFalse(1, {{1}, {-1}});
   EXPECT_EQ(SatFalse.find().has_value(), false);
@@ -149,68 +161,15 @@ void testFind3() { // to implement
 
   Sat3_t Sat4(2, {{1, 2}, {-1, 2}});
   EXPECT_EQ(*Sat4.find(), "x1 x2 ");
+
+  auto [VarCount, Value] =
+      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
+  Sat3_t SatBig(VarCount, std::move(Value));
+  EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 ~x4 ~x5 x6 ~x7 ~x8 x9 ~x10 ~x11 ~x12 "
+                            "~x13 x14 x15 ~x16 x17 ~x18 ~x19 x20 ");
 }
 
-template <typename SatT> void testUf(std::string Path = std::filesystem::path(__FILE__).parent_path() /
-                    "cnf/for_tests", std::string output_file = "") {
-  std::vector<std::chrono::duration<double>> time_algo, time_algo2;
-  std::vector<std::string> files;
-  std::chrono::time_point<std::chrono::steady_clock> start, end;
-  std::cout << Path << "/" << std::endl;
-  for (const auto &entry : std::filesystem::directory_iterator(Path)) {
-    std::cout << std::string(entry.path()) << std::endl;
-    auto [VarCount, Value] = inputFromFile(entry.path());
-    SatT SatTrue(VarCount, std::move(Value));
-    EXPECT_EQ_MSG(SatTrue.check(), true,
-                  std::string(entry.path()) +
-                      " should be SAT, but check() says UNSAT");
-    start = std::chrono::steady_clock::now();
-    auto Set1 = SatTrue.find();
-    end = std::chrono::steady_clock::now();
-    time_algo.push_back(end - start);
-
-    files.push_back(std::string(entry.path()));
-
-    EXPECT_EQ_MSG(Set1.has_value(), true,
-                  std::string(entry.path()) +
-                      " should be SAT, but find() says UNSAT");
-  }
-  /* this is time output */
-  if (output_file != "") {
-    std::fstream fs(output_file,std::fstream::trunc|std::fstream::out);
-    if (fs.is_open()) {
-      for (auto f:files)
-        fs << f << " ";
-      fs << std::endl;
-      for (auto i:time_algo)
-        fs << std::setprecision (3) << i.count() << " ";
-      fs << std::endl;
-    } else std::cout << "fs("+output_file+") isnt opened!\n";
-    double s1=0, s2 = 0;
-    for (auto i:time_algo)
-      s1 += i.count();
-    fs << "Mean Algo " << s1/time_algo.size() << std::endl;
-  }
-}
-
-std::vector<std::string> getDirs(int argc, char** argv) {
-  bool Flag = false;
-  std::vector<std::string> SArgv;
-  for (int i = 1; i < argc; i++)
-    SArgv.push_back(std::string(argv[i]));
-  std::vector<std::string> Dirs;
-  for (auto s: SArgv) {
-    if (s[0] == '-' && s != "-dir")
-      Flag = false;
-    if (Flag == true)
-      Dirs.push_back(s);
-    if (s == "-dir")
-      Flag = true;
-  }
-  return Dirs;
-}
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   testForTest();
   testSetVar();
   testFileInput();
@@ -220,13 +179,6 @@ int main(int argc, char** argv) {
   testFind<Sat2_t>();
   testCheck<Sat3_t>();
   testFind3(); // different method to find final result
-  auto Dirs = getDirs(argc, argv);
-  for(auto d:Dirs){
-    auto s = d;
-    std::replace(s.begin(),s.end(),'/','_');
-    testUf<Sat1_t>(d, std::filesystem::path(__FILE__).parent_path() /"data/"/(s+"_sat1.data"));
-    testUf<Sat2_t>(d, std::filesystem::path(__FILE__).parent_path() /"data/"/(s+"_sat2.data"));
-    testUf<Sat3_t>(d, std::filesystem::path(__FILE__).parent_path() /"data/"/(s+"_sat3.data"));
-  }
+
   summary();
 }

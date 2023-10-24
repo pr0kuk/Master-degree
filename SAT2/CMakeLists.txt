@@ -8,6 +8,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 20)
 # Create a library
 
+find_package( Boost 1.40 COMPONENTS program_options REQUIRED )
+include_directories( ${Boost_INCLUDE_DIR} )
+
 add_library(Common)
 target_sources(Common
   PUBLIC
@@ -41,5 +44,8 @@ target_sources(Sat3
 
 # Create an executable
 add_executable(test test.cxx)
-# Link to the library foo
+add_executable(bench bench.cxx)
+
+# Link to dependencies
 target_link_libraries(test Sat Sat2 Sat3 Common)
+target_link_libraries(bench Sat Sat2 Sat3 Common Boost::program_options)
