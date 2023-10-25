@@ -114,9 +114,9 @@ concept printable = requires(T a, std::string b) { a << b; };
 template <printable T>
 static void _printTimeFormat(Time_t Time, std::string Info, T &&Out) {
   Out << Info << "\n";
-  Out << "Analyze:\t" << Time.AnalyzeTime.count() << "ms\t"
-      << "Check:\t" << Time.CheckTime.count() << "ms\t"
-      << "Find:\t" << Time.FindTime.count() << "ms\n";
+  Out << "Analyze:\t" << Time.AnalyzeTime.count() << "\t"
+      << "Check:\t" << Time.CheckTime.count() << "\t"
+      << "Find:\t" << Time.FindTime.count() << "\n";
 }
 
 void printTime(Time_t Time, std::string Info, std::optional<fs::path> OutPath) {
