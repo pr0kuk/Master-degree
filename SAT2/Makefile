@@ -9,7 +9,7 @@ all: ${BUILD}
 	${CMAKE} --build ${BUILD}
 
 ${BUILD}: CMakeLists.txt
-	rm -rf {BUILD}
+	rm -rf ${BUILD}
 	CXX=${CXX} CC={CC} ${CMAKE} -S . -B ${BUILD} -GNinja -DCMAKE_MAKE_PROGRAM=${NINJA}
 
 format:

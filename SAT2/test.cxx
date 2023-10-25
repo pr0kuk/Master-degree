@@ -7,16 +7,15 @@
 #include <optional>
 
 import Common;
-import Sat;
+import Sat1;
 import Sat2;
 import Sat3;
+import Sat4;
 
 auto FILEPATH = std::filesystem::path(__FILE__).parent_path();
 
 template <class T1, class T2>
-concept equality_comparable = requires(T1 a, T2 b) {
-  a == b;
-};
+concept equality_comparable = requires(T1 a, T2 b) { a == b; };
 
 static size_t NumPass = 0;
 static size_t NumFail = 0;
@@ -170,6 +169,13 @@ void testFind3() { // to implement
                             "x14 x15 ~x16 x17 x18 x19 x20");
 }
 
+void testAnalyze() { // to implement
+  Sat4_t Sat1(4, {{1, 2, -3}, {4}, {-1, 2}});
+  EXPECT_EQ(Sat1.dumpStr(), "( x1 | x2 | ~x3 ) & ( x4 ) & ( ~x1 | x2 )");
+  Sat1.analyze();
+  EXPECT_EQ(Sat1.dumpStr(), "( x4 ) & ( ~x1 | x2 ) & ( x1 | x2 | ~x3 )");
+}
+
 int main(int argc, char **argv) {
   testForTest();
   testSetVar();
@@ -180,6 +186,7 @@ int main(int argc, char **argv) {
   testFind<Sat2_t>();
   testCheck<Sat3_t>();
   testFind3(); // different method to find final result
+  testAnalyze();
 
   summary();
 }

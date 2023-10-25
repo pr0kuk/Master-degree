@@ -14,33 +14,16 @@ module;
 export module BaseSat;
 
 namespace detail {
-std::string strConvert(std::string Str) { return Str; }
-std::string intConvert(int Num) {
-  std::string Out = Num < 0 ? "~" : "";
-  return Out + "x" + std::to_string(std::abs(Num));
-}
+std::string strConvert(std::string Str);
+std::string intConvert(int Num);
 
 template <typename Iter, typename F>
-std::string join(Iter Begin, Iter End, std::string Separator, F func) {
-  if (Begin == End)
-    return std::string{};
-  std::string Result = func(*Begin);
-  ++Begin;
-  while (Begin != End) {
-    Result += Separator + func(*Begin);
-    ++Begin;
-  }
-  return Result;
-}
+std::string join(Iter Begin, Iter End, std::string Separator, F func);
 
 template <typename Iter>
-std::string intJoin(Iter Begin, Iter End, std::string Separator) {
-  return join(Begin, End, std::move(Separator), intConvert);
-}
+std::string intJoin(Iter Begin, Iter End, std::string Separator);
 template <typename Iter>
-std::string strJoin(Iter Begin, Iter End, std::string Separator) {
-  return join(Begin, End, std::move(Separator), strConvert);
-}
+std::string strJoin(Iter Begin, Iter End, std::string Separator);
 } // namespace detail
 
 export class Sat_t;
@@ -66,6 +49,7 @@ public:
 
   virtual bool check() const = 0;
   std::optional<std::string> find() const;
+  virtual void analyze() {}
 
   int getVarCount() const { return VarCount; }
   std::vector<int> getClause(int N) const { return Value[N]; }
@@ -109,3 +93,33 @@ std::string Sat_t::dumpStr() const {
 void Sat_t::dump(std::string ExtraMsg) const {
   std::cout << ExtraMsg << "\n" << dumpStr() << "\n";
 }
+
+namespace detail {
+std::string strConvert(std::string Str) { return Str; }
+std::string intConvert(int Num) {
+  std::string Out = Num < 0 ? "~" : "";
+  return Out + "x" + std::to_string(std::abs(Num));
+}
+
+template <typename Iter, typename F>
+std::string join(Iter Begin, Iter End, std::string Separator, F func) {
+  if (Begin == End)
+    return std::string{};
+  std::string Result = func(*Begin);
+  ++Begin;
+  while (Begin != End) {
+    Result += Separator + func(*Begin);
+    ++Begin;
+  }
+  return Result;
+}
+
+template <typename Iter>
+std::string intJoin(Iter Begin, Iter End, std::string Separator) {
+  return join(Begin, End, std::move(Separator), intConvert);
+}
+template <typename Iter>
+std::string strJoin(Iter Begin, Iter End, std::string Separator) {
+  return join(Begin, End, std::move(Separator), strConvert);
+}
+} // namespace detail

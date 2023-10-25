@@ -7,7 +7,7 @@ module;
 #include <optional>
 #include <vector>
 
-export module Sat;
+export module Sat1;
 
 export import BaseSat;
 

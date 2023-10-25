@@ -11,38 +11,29 @@ set(CMAKE_CXX_STANDARD 20)
 find_package( Boost 1.40 COMPONENTS program_options REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
 
-
-add_library(Sat)
-target_sources(Sat
-  PUBLIC
-    FILE_SET CXX_MODULES FILES
-      Sat.cxx
-      BaseSat.cxx
-      Common.cxx 
-)
-
-add_library(Sat2)
-target_sources(Sat2
-  PUBLIC
-    FILE_SET CXX_MODULES FILES
-      Sat2.cxx
-      BaseSat.cxx 
-      Common.cxx
-)
-
-add_library(Sat3)
-target_sources(Sat3
-  PUBLIC
-    FILE_SET CXX_MODULES FILES
-      Sat3.cxx
-      BaseSat.cxx 
-      Common.cxx
-)
-
 # Create an executable
 add_executable(test test.cxx)
 add_executable(bench bench.cxx)
 
+add_library(Common)
+target_sources(Common
+  PUBLIC
+    FILE_SET CXX_MODULES FILES
+      Common.cxx 
+)
+
+foreach(NUM RANGE 1 4)
+  add_library(Sat${NUM})
+  target_sources(Sat${NUM}
+    PUBLIC
+      FILE_SET CXX_MODULES FILES
+        Sat${NUM}.cxx
+        BaseSat.cxx
+  )
+  target_link_libraries(test Sat${NUM})
+  target_link_libraries(bench Sat${NUM})
+endforeach()
+
 # Link to dependencies
-target_link_libraries(test Sat Sat2 Sat3)
-target_link_libraries(bench Sat Sat2 Sat3 Boost::program_options)
+target_link_libraries(test Common)
+target_link_libraries(bench Common Boost::program_options)

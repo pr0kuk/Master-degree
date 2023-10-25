@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 flags = {'-dir': [False, []], '-o': [False, []], '-file': [False, []]}
 dir_path = os.path.dirname(os.path.realpath(__file__)) 
-Sats = ['Sat1_t', 'Sat2_t', 'Sat3_t']
+Sats = ['Sat2_t', 'Sat3_t']
 res = {}
 
 # parsing arguments
