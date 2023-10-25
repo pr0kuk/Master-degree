@@ -4,7 +4,7 @@
 #include <iostream>
 #include <numeric>
 #include <optional>
-
+#include <fstream>
 import Common;
 import Sat;
 import Sat2;
@@ -20,22 +20,36 @@ template <typename SatT>
 std::pair<ch::microseconds, ch::microseconds> bench(fs::path TestPath);
 
 void printTime(std::pair<ch::microseconds, ch::microseconds> Time,
-               std::string Info = "Time") {
-  std::cout << Info << "\n";
-  std::cout << "Check:\t" << Time.first.count() << "ms\tFind:\t"
-            << Time.second.count() << "ms\n";
+               std::string Info = "Time", std::string OutPath = "") {
+  if (OutPath == "") {
+    std::cout << Info << "\n";
+    std::cout << "Check:\t" << Time.first.count() << "ms\tFind:\t"
+              << Time.second.count() << "ms\n";
+  } else {
+    std::fstream fout(OutPath, std::fstream::out | std::fstream::app);
+    if (fout.is_open()) {
+      fout << Info << "\n";
+      fout << "Check:\t" << Time.first.count() << "\tFind:\t"
+                << Time.second.count() << "\n";
+                fout.close();
+    }
+    else   std::cout << "fout(" << OutPath << ") isnt opened\n";
+  }
 }
 
-#define RUN_TEST(S) printTime(bench<S>(TestPath), #S)
+#define RUN_TEST(S) printTime(bench<S>(TestPath), #S, OutPath)
 
 int main(int Argc, char *Argv[]) {
-  auto TestPathOpt = parseArgs(Argc, Argv);
-  if (!TestPathOpt.has_value())
+  // auto TestPathOpt = parseArgs(Argc, Argv);
+  // if (!TestPathOpt.has_value())
+  //   return 1;
+  if (Argc < 3)
     return 1;
-
-  auto TestPath = TestPathOpt.value();
+  std::string TestPath = Argv[1];
+  std::string OutPath = Argv[2];
+  //auto TestPath = TestPathOpt.value();
   std::cout << "Test to execute: " << fs::canonical(fs::absolute(TestPath))
-            << "\n";
+            << " out to " << OutPath << "\n";
 
   RUN_TEST(Sat1_t);
   RUN_TEST(Sat2_t);
@@ -62,31 +76,31 @@ std::pair<ch::microseconds, ch::microseconds> bench(fs::path TestPath) {
       ch::duration_cast<ch::microseconds>(EndTime - MiddleTime));
 }
 
-std::optional<fs::path> parseArgs(int Argc, char *Argv[]) {
-  // Declare the supported options.
-  po::options_description Desc("Allowed options");
-  Desc.add_options()("help,h", "Produce help message")(
-      "test,t", po::value<fs::path>(), "Select test path to run");
+// std::optional<fs::path> parseArgs(int Argc, char *Argv[]) {
+//   // Declare the supported options.
+//   po::options_description Desc("Allowed options");
+//   Desc.add_options()("help,h", "Produce help message")(
+//       "test,t", po::value<fs::path>(), "Select test path to run");
 
-  po::variables_map Vm;
-  po::store(po::parse_command_line(Argc, Argv, Desc), Vm);
-  po::notify(Vm);
+//   po::variables_map Vm;
+//   po::store(po::parse_command_line(Argc, Argv, Desc), Vm);
+//   po::notify(Vm);
 
-  if (Vm.count("help")) {
-    std::cout << Desc << "\n";
-    return std::nullopt;
-  }
+//   if (Vm.count("help")) {
+//     std::cout << Desc << "\n";
+//     return std::nullopt;
+//   }
 
-  if (Vm.count("test")) {
-    auto TestPath = Vm["test"].as<fs::path>();
-    if (fs::exists(TestPath))
-      return std::make_optional(TestPath);
-    std::cerr << "Test path " << fs::absolute(TestPath)
-              << " is not correct path!\n";
-    return std::nullopt;
-  }
+//   if (Vm.count("test")) {
+//     auto TestPath = Vm["test"].as<fs::path>();
+//     if (fs::exists(TestPath))
+//       return std::make_optional(TestPath);
+//     std::cerr << "Test path " << fs::absolute(TestPath)
+//               << " is not correct path!\n";
+//     return std::nullopt;
+//   }
 
-  std::cerr << "You have to specify test file!\n";
-  std::cerr << "Run -h to help!\n";
-  return std::nullopt;
-}
+//   std::cerr << "You have to specify test file!\n";
+//   std::cerr << "Run -h to help!\n";
+//   return std::nullopt;
+// }
