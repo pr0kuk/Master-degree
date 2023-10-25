@@ -28,21 +28,22 @@ for d, i in zip(args.dir, range(len(args.o))):
     # calling bench.cxx
     if len(args.dir) > 0:
         for f in dir_list:
-            proc = subprocess.call([os.path.join(dir_path,'build', 'bench'), os.path.join(dir_path,d,f), os.path.join(dir_path,o) if o!='' else o])
+            proc = subprocess.call([os.path.join(dir_path,'build', 'bench'), '-t', os.path.join(dir_path,d,f), '-o', os.path.join(dir_path,o) if o!='' else o])
 
 # reading results
 for o in args.o:
     if o != '':
         with open(o,'r') as out:
             s = out.read().split()
-            res[o] = {s:np.zeros(3) for s in Sats}
+            res[o] = {s:np.zeros(4) for s in Sats}
             for w, i in zip(s, range(len(s))):
                 if s[i] in Sats:
-                    res[o][w][0] += float(s[i+2]) # check time
-                    res[o][w][1] += float(s[i+4]) # find time
-                    res[o][w][2] += 1             # number of files
+                    res[o][w][0] += float(s[i+2]) # analyze time
+                    res[o][w][1] += float(s[i+4]) # check time
+                    res[o][w][2] += float(s[i+6]) # find time
+                    res[o][w][3] += 1             # number of files
             for k in res[o].keys():
-                res[o][k][:2] = np.divide(res[o][k][:2], res[o][k][2]) # averaging
+                res[o][k][:3] = np.divide(res[o][k][:3], res[o][k][3]) # averaging
 
 #plotting graphs
 measurements = [[m[i][1] for m in np.array(list(res.values()))] for i in Sats]
