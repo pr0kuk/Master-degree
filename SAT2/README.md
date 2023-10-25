@@ -26,18 +26,17 @@ To run tests:
 ```bash
 build/test
 ```
-
 You'll need to download third-party benchmarks input files meet the [CNF Format](https://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps).  
-For example from [here](https://www.cs.ubc.ca/~hoos/SATLIB/benchm.html)  
+For example from [here](https://www.cs.ubc.ca/~hoos/SATLIB/benchm.html).
 
 ## Running the benchmarks and plotting graphs
-This example will store all results (time of running every alg on every file from cnf/uf20_91/) in uf20_91.txt and then build plots based on it 
+This example will store all results of running every algorithm on every file from `/PATH/TO/uf20_91/` in `uf20_91.txt` and then build plots based on it.
 ```bash
-python3 benchmark.py -dir cnf/uf20_91 -o uf20_91.txt
+python3 benchmark.py -dir /PATH/TO/uf20_91 -o uf20_91.txt
 ```
 
 ## Just plotting graphs
-This example will reads results from uf20_91.txt and then build plots based on it 
+This example will read results from `uf20_91.txt` and then build plots based on it.
 ```bash
 python3 benchmark.py -o uf20_91.txt
 ```
