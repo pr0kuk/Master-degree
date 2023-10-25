@@ -10,9 +10,9 @@ res = {}
 
 # parsing arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-dir', nargs='*', action='extend')
-parser.add_argument('-file', nargs='*', action='extend')
-parser.add_argument('-o', nargs='*', action='extend')
+parser.add_argument('-dir', help='directories with input files', nargs='*', metavar='DIRECTORY', action='extend')
+parser.add_argument('-file', help = 'input files', nargs='*', metavar='FILE', action='extend')
+parser.add_argument('-o', help = 'output files', nargs='*', metavar='OUT', action='extend')
 args = parser.parse_args()
 
 # clearing output files
