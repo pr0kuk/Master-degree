@@ -3,35 +3,35 @@ import os
 import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
-flags = {'-dir': [False, []], '-o': [False, []], '-file': [False, []]}
+import argparse
 dir_path = os.path.dirname(os.path.realpath(__file__)) 
 Sats = ['Sat2_t', 'Sat3_t']
 res = {}
 
 # parsing arguments
-for a in sys.argv[1:]:
-    for arg, [flag, lst] in flags.items():
-        if a[0] == '-':
-            flags[arg][0] = False if a != arg else True
-        elif flag == True:
-            flags[arg][1].append(a)
+parser = argparse.ArgumentParser()
+parser.add_argument('-dir', nargs='*', action='extend')
+parser.add_argument('-file', nargs='*', action='extend')
+parser.add_argument('-o', nargs='*', action='extend')
+args = parser.parse_args()
 
 # clearing output files
-if len(flags['-dir'][1]) > 0:
-    for o in flags['-o'][1]:
+if len(args.dir) > 0:
+    for o in args.o:
         open(o, 'w').close()
 
-for d, i in zip(flags['-dir'][1], range(len(flags['-dir'][1]))):
+for d, i in zip(args.dir, range(len(args.o))):
+    # finding files in dir
     dir_list = os.listdir(d)
-    o = '' if i >= len(flags['-o'][1]) else flags['-o'][1][i]
+    o = '' if i >= len(args.o) else args.o[i]
 
     # calling bench.cxx
-    if len(flags['-dir'][1]) > 0:
+    if len(args.dir) > 0:
         for f in dir_list:
             proc = subprocess.call([os.path.join(dir_path,'build', 'bench'), os.path.join(dir_path,d,f), os.path.join(dir_path,o) if o!='' else o])
 
 # reading results
-for o in flags['-o'][1]:
+for o in args.o:
     if o != '':
         with open(o,'r') as out:
             s = out.read().split()
