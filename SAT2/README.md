@@ -35,6 +35,10 @@ This example will store all results of running every algorithm on every file fro
 python3 benchmark.py -dir /PATH/TO/uf20_91 -o uf20_91.txt
 ```
 
+You can also specify multiple input directories and output files. The results of each new directory will be saved in a new output file. If the number of specified output files is less than the number of input directories, additional results will be printed in `stdout`.
+```bash
+python3 benchmark.py -dir /PATH/TO/uf50_218 /PATH/TO/uf75_325 -o uf50_218.txt uf75_325.txt
+```
 ## Just plotting graphs
 This example will read results from `uf20_91.txt` and then build plots based on it.
 ```bash
