@@ -6,7 +6,10 @@ project(std_module_example CXX)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # Set the version of C++ for the project
 set(CMAKE_CXX_STANDARD 20)
-# Create a library
+
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 find_package( Boost 1.40 COMPONENTS program_options REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )

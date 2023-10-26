@@ -84,7 +84,7 @@ void testSetVar() {
 }
 
 void testFileInput() {
-  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/for_tests/manual.cnf");
+  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/manual.cnf");
   Sat1_t SatManual(VarCount, std::move(Value));
   EXPECT_EQ(SatManual.dumpStr(), "( x1 | x2 | ~x3 ) & ( ~x1 | x2 )");
 }
@@ -96,8 +96,7 @@ template <typename SatT> void testCheck() {
   SatT SatFalse(1, {{1}, {-1}});
   EXPECT_EQ(SatFalse.check(), false);
 
-  auto [VarCount, Value] =
-      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
+  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/uf20-01.cnf");
   Sat1_t SatBig(VarCount, std::move(Value));
   EXPECT_EQ(SatBig.check(), true);
 }
@@ -140,8 +139,7 @@ void testFind3() {
   Sat3_t Sat4(2, {{1, 2}, {-1, 2}});
   EXPECT_EQ(*Sat4.find(), "x1 x2");
 
-  auto [VarCount, Value] =
-      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
+  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/uf20-01.cnf");
   Sat3_t SatBig(VarCount, std::move(Value));
   EXPECT_EQ(*SatBig.find(), "~x1 x2 x3 x4 ~x5 ~x6 ~x7 x8 x9 x10 x11 ~x12 ~x13 "
                             "x14 x15 ~x16 x17 x18 x19 x20");
@@ -165,8 +163,7 @@ void testFind4() {
   Sat4_t Sat4(2, {{1, 2}, {-1, 2}});
   EXPECT_EQ(*Sat4.find(), "x1 x2");
 
-  auto [VarCount, Value] =
-      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
+  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/uf20-01.cnf");
   Sat4_t SatBig(VarCount, std::move(Value));
   EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 x4 ~x5 ~x6 ~x7 ~x8 ~x9 x10 ~x11 ~x12 "
                             "x13 x14 x15 ~x16 x17 ~x18 ~x19 x20");
