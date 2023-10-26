@@ -3,19 +3,21 @@ import subprocess
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
+import re
+from pyparsing import Literal, Optional, Word, nums, Or, one_of
 dir_path = os.path.dirname(os.path.realpath(__file__)) 
 Sats = ['Sat2_t', 'Sat3_t']
 res = {}
 
 # parsing arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-dir', help='directories with input files', nargs='*', metavar='DIRECTORY', action='extend')
-parser.add_argument('-file', help = 'input files', nargs='*', metavar='FILE', action='extend')
-parser.add_argument('-o', help = 'output files', nargs='*', metavar='OUT', action='extend')
+parser.add_argument('-dir', help='directories with input files', nargs='*', metavar='DIRECTORY', action='extend', default=[])
+parser.add_argument('-file', help = 'input files', nargs='*', metavar='FILE', action='extend', default = [])
+parser.add_argument('-o', help = 'output files', nargs='*', metavar='OUT', action='extend', default = [])
 args = parser.parse_args()
 
 # clearing output files
-if args.dir and len(args.dir) > 0:
+if len(args.dir) > 0:
     for o in args.o:
         open(o, 'w').close()
 
@@ -32,16 +34,13 @@ for d, i in zip(args.dir, range(len(args.o))):
 # reading results
 for o in args.o:
     if o != '':
-        with open(o,'r') as out:
-            s = out.read().split()
-            res[o] = {s:np.zeros(4) for s in Sats}
-            for w, i in zip(s, range(len(s))):
-                if s[i] in Sats:
-                    res[o][w][0] += float(s[i+2]) # analyze time
-                    res[o][w][1] += float(s[i+4]) # check time
-                    res[o][w][2] += float(s[i+6]) # find time
-                    res[o][w][3] += 1             # number of files
-            for k in res[o].keys():
+        with open(o, 'r') as out:
+            res[o] = {sat:np.zeros(4) for sat in Sats}
+            pattern = one_of(Sats) + Optional(Literal("Analyze:") + Word(nums)).suppress() + Optional(Literal("Check:").suppress() + Word(nums)) + Optional(Literal("Find:") + Word(nums)).suppress()
+            for sat, time in pattern.searchString(re.sub(r'\$.?\n', '', out.read())):
+                res[o][sat][1] += float(time) # check time
+                res[o][sat][3] += 1           # number of files
+            for k in Sats:
                 res[o][k][:3] = np.divide(res[o][k][:3], res[o][k][3]) # averaging
 
 #plotting graphs
