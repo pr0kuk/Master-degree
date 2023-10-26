@@ -7,11 +7,14 @@
 #include <numeric>
 #include <optional>
 import Common;
+import BaseSat;
 import Sat1;
 import Sat2;
 import Sat3;
 import Sat4;
-constexpr int COUNT_SAT = 4;
+import Sat5;
+import Sat6;
+constexpr int COUNT_SAT = 6;
 
 namespace po = boost::program_options;
 namespace fs = std::filesystem;
@@ -76,6 +79,10 @@ Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check) {
     return _bench<Sat3_t>(TestPath, Check);
   case 4:
     return _bench<Sat4_t>(TestPath, Check);
+  case 5:
+    return _bench<Sat5_t>(TestPath, Check);
+  case 6:
+    return _bench<Sat6_t>(TestPath, Check);
   }
   std::cerr << "Sat " << std::to_string(Num) << " wasn't implemented!\n";
   return Time_t{};

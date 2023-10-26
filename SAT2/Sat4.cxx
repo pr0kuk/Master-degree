@@ -9,7 +9,7 @@ module;
 
 export module Sat4;
 
-export import BaseSat;
+import BaseSat;
 
 namespace detailSat4 {
 template <typename S_t> bool find(const S_t &S, std::vector<char> &VarSets);
@@ -22,7 +22,9 @@ export class Sat4_t final : public Sat_t {
 
 public:
   Sat4_t(int NewVarCount, Value_t &&NewValue, bool NewCanBeTrue = true)
-      : Sat_t(NewVarCount, std::move(NewValue)), CanBeTrue(NewCanBeTrue) {}
+      : Sat_t(NewVarCount, std::move(NewValue)), CanBeTrue(NewCanBeTrue) {
+    analyze();
+  }
 
   Sat setVar(int VarSet) const override;
   bool check() const override;
@@ -63,9 +65,7 @@ bool Sat4_t::check() const {
     return true;
 
   for (int Var : this->getClause(0)) {
-    auto SatSetVar = this->setVar(Var);
-    SatSetVar->analyze();
-    if (SatSetVar->check())
+    if (this->setVar(Var)->check())
       return true;
   }
   return false;
@@ -91,9 +91,7 @@ bool detailSat4::find(const S_t &S, std::vector<char> &VarSets) {
     return true;
 
   for (int Var : S->getClause(0)) {
-    auto SatSetVar = S->setVar(Var);
-    SatSetVar->analyze();
-    if (find(SatSetVar, VarSets)) {
+    if (find(S->setVar(Var), VarSets)) {
       VarSets[std::abs(Var) - 1] = Var > 0;
       return true;
     }

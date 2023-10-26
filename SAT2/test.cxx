@@ -7,10 +7,13 @@
 #include <optional>
 
 import Common;
+import BaseSat;
 import Sat1;
 import Sat2;
 import Sat3;
 import Sat4;
+import Sat5;
+import Sat6;
 
 auto FILEPATH = std::filesystem::path(__FILE__).parent_path();
 
@@ -79,7 +82,7 @@ void testSetVar() {
   EXPECT_EQ(Output3->dumpStr(), "");
   auto Output4 = Sat1.setVar(3);
   EXPECT_EQ(Output4->dumpStr(), "( x1 | x2 ) & ( ~x1 | x2 )");
-  auto Output5 = Sat1.setLastVar(false);
+  auto Output5 = Sat1.setMostImportantVar(false);
   EXPECT_EQ(Output5->dumpStr(), "( ~x1 | x2 )");
 }
 
@@ -101,8 +104,7 @@ template <typename SatT> void testCheck() {
   EXPECT_EQ(SatBig.check(), true);
 }
 
-// not for sat3
-template <typename SatT> void testFind() {
+template <typename SatT> void testFind12() {
   SatT SatFalse(1, {{1}, {-1}});
   EXPECT_EQ(SatFalse.find().has_value(), false);
 
@@ -121,26 +123,26 @@ template <typename SatT> void testFind() {
   EXPECT_EQ(*Sat4.find(), "~x1 x2");
 }
 
-void testFind3() {
-  Sat3_t SatFalse(1, {{1}, {-1}});
+template <typename SatT = Sat3_t> void testFind3() {
+  SatT SatFalse(1, {{1}, {-1}});
   EXPECT_EQ(SatFalse.find().has_value(), false);
 
-  Sat3_t Sat1(3, {{1, 2, -3}, {-1, 2}});
+  SatT Sat1(3, {{1, 2, -3}, {-1, 2}});
   auto Set1Str = Sat1.find();
   EXPECT_EQ(Set1Str.has_value(), true);
   EXPECT_EQ(*Set1Str, "x1 x2 ~x3");
 
-  Sat3_t Sat2(3, {{1, 2, -3}, {1, 2}});
+  SatT Sat2(3, {{1, 2, -3}, {1, 2}});
   EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3");
 
-  Sat3_t Sat3(2, {{1, -2}, {1, 2}});
+  SatT Sat3(2, {{1, -2}, {1, 2}});
   EXPECT_EQ(*Sat3.find(), "x1 ~x2");
 
-  Sat3_t Sat4(2, {{1, 2}, {-1, 2}});
+  SatT Sat4(2, {{1, 2}, {-1, 2}});
   EXPECT_EQ(*Sat4.find(), "x1 x2");
 
   auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/uf20-01.cnf");
-  Sat3_t SatBig(VarCount, std::move(Value));
+  SatT SatBig(VarCount, std::move(Value));
   EXPECT_EQ(*SatBig.find(), "~x1 x2 x3 x4 ~x5 ~x6 ~x7 x8 x9 x10 x11 ~x12 ~x13 "
                             "x14 x15 ~x16 x17 x18 x19 x20");
 }
@@ -152,7 +154,7 @@ void testFind4() {
   Sat4_t Sat1(3, {{1, 2, -3}, {-1, 2}});
   auto Set1Str = Sat1.find();
   EXPECT_EQ(Set1Str.has_value(), true);
-  EXPECT_EQ(*Set1Str, "x1 x2 ~x3");
+  EXPECT_EQ(*Set1Str, "~x1 x2 ~x3");
 
   Sat4_t Sat2(3, {{1, 2, -3}, {1, 2}});
   EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3");
@@ -165,32 +167,91 @@ void testFind4() {
 
   auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/uf20-01.cnf");
   Sat4_t SatBig(VarCount, std::move(Value));
+  EXPECT_EQ(*SatBig.find(), "~x1 x2 x3 x4 ~x5 ~x6 ~x7 x8 x9 x10 x11 ~x12 ~x13 "
+                            "x14 x15 ~x16 x17 x18 x19 x20");
+}
+
+template <typename SatT = Sat5_t> void testFind5() {
+  SatT SatFalse(1, {{1}, {-1}});
+  EXPECT_EQ(SatFalse.find().has_value(), false);
+
+  SatT Sat1(3, {{1, 2, -3}, {-1, 2}});
+  auto Set1Str = Sat1.find();
+  EXPECT_EQ(Set1Str.has_value(), true);
+  EXPECT_EQ(*Set1Str, "x1 x2 ~x3");
+
+  SatT Sat2(3, {{1, 2, -3}, {1, 2}});
+  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3");
+
+  SatT Sat3(2, {{1, -2}, {1, 2}});
+  EXPECT_EQ(*Sat3.find(), "x1 ~x2");
+
+  SatT Sat4(2, {{1, 2}, {-1, 2}});
+  EXPECT_EQ(*Sat4.find(), "x1 x2");
+
+  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/uf20-01.cnf");
+  SatT SatBig(VarCount, std::move(Value));
+  EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 x4 ~x5 x6 ~x7 ~x8 ~x9 ~x10 ~x11 ~x12 "
+                            "x13 x14 x15 ~x16 x17 ~x18 ~x19 x20");
+}
+
+template <typename SatT = Sat6_t> void testFind6() {
+  SatT SatFalse(1, {{1}, {-1}});
+  EXPECT_EQ(SatFalse.find().has_value(), false);
+
+  SatT Sat1(3, {{1, 2, -3}, {-1, 2}});
+  auto Set1Str = Sat1.find();
+  EXPECT_EQ(Set1Str.has_value(), true);
+  EXPECT_EQ(*Set1Str, "x1 x2 ~x3");
+
+  SatT Sat2(3, {{1, 2, -3}, {1, 2}});
+  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3");
+
+  SatT Sat3(2, {{1, -2}, {1, 2}});
+  EXPECT_EQ(*Sat3.find(), "x1 ~x2");
+
+  SatT Sat4(2, {{1, 2}, {-1, 2}});
+  EXPECT_EQ(*Sat4.find(), "x1 x2");
+
+  auto [VarCount, Value] = inputFromFile(FILEPATH / "cnf/uf20-01.cnf");
+  SatT SatBig(VarCount, std::move(Value));
   EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 x4 ~x5 ~x6 ~x7 ~x8 ~x9 x10 ~x11 ~x12 "
                             "x13 x14 x15 ~x16 x17 ~x18 ~x19 x20");
 }
 
-void testAnalyze() { // to implement
+void testAnalyze4() {
   Sat4_t Sat1(4, {{1, 2, -3}, {4}, {-1, 2}});
-  EXPECT_EQ(Sat1.dumpStr(), "( x1 | x2 | ~x3 ) & ( x4 ) & ( ~x1 | x2 )");
-  Sat1.analyze();
   EXPECT_EQ(Sat1.dumpStr(), "( x4 ) & ( ~x1 | x2 ) & ( x1 | x2 | ~x3 )");
+}
+void testAnalyze5() {
+  Sat5_t Sat1(2, {{1, 2}});
+  EXPECT_EQ(Sat1.getMostImportantVar(), 1);
+  Sat5_t Sat2(2, {{1, 2}, {-2}});
+  EXPECT_EQ(Sat2.getMostImportantVar(), 2);
+  Sat5_t Sat3(2, {{1, -2}, {-2}});
+  EXPECT_EQ(Sat3.getMostImportantVar(), -2);
 }
 
 int main(int argc, char **argv) {
   testForTest();
   testSetVar();
   testFileInput();
-  testAnalyze();
+  testAnalyze4();
+  testAnalyze5();
 
   testCheck<Sat1_t>();
   testCheck<Sat2_t>();
   testCheck<Sat3_t>();
   testCheck<Sat4_t>();
+  testCheck<Sat5_t>();
+  testCheck<Sat6_t>();
 
-  testFind<Sat1_t>();
-  testFind<Sat2_t>();
+  testFind12<Sat1_t>();
+  testFind12<Sat2_t>();
   testFind3(); // different method to find final result
-  testFind4(); // different method to find final result
+  testFind4();
+  testFind5();
+  testFind6();
 
   summary();
 }
