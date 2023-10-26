@@ -26,6 +26,10 @@ To run tests:
 ```bash
 build/test
 ```
+To run bench:
+```bash
+build/bench -h
+```
 You'll need to download third-party benchmarks input files meet the [CNF Format](https://www.cs.ubc.ca/~hoos/SATLIB/Benchmarks/SAT/satformat.ps).  
 For example from [here](https://www.cs.ubc.ca/~hoos/SATLIB/benchm.html).
 
