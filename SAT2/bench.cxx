@@ -11,13 +11,20 @@ import Sat1;
 import Sat2;
 import Sat3;
 import Sat4;
+constexpr int COUNT_SAT = 4;
 
 namespace po = boost::program_options;
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
-std::pair<std::optional<fs::path>, std::optional<fs::path>>
-parseArgs(int Argc, char *Argv[]);
+struct Opt_t {
+  std::optional<bool> Check;
+  std::optional<int> RunSpecific;
+  std::optional<fs::path> TestPathOpt;
+  std::optional<fs::path> OutPathOpt;
+};
+
+std::optional<Opt_t> parseArgs(int Argc, char *Argv[]);
 
 struct Time_t {
   ch::microseconds AnalyzeTime;
@@ -25,95 +32,141 @@ struct Time_t {
   ch::microseconds FindTime;
 };
 
-template <typename SatT> Time_t bench(fs::path TestPath);
-
 void printTime(Time_t Time, std::string Info = "Time",
                std::optional<fs::path> = std::nullopt);
 
-#define RUN_TEST(S, Test, Out) printTime(bench<S>(*Test), #S, Out)
+Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check);
 
 int main(int Argc, char *Argv[]) {
-  auto [TestPathOpt, OutPathOpt] = parseArgs(Argc, Argv);
-  if (!TestPathOpt.has_value())
-    return 1;
+  auto Opt = parseArgs(Argc, Argv);
+  if (!Opt)
+    return 0;
 
-  std::cout << "Test to execute: " << fs::canonical(fs::absolute(*TestPathOpt))
-            << "\n";
-  if (OutPathOpt)
-    std::cout << "Dump output to " << fs::canonical(fs::absolute(*OutPathOpt))
-              << "\n";
+  std::cout << "Test to execute: "
+            << fs::canonical(fs::absolute(*Opt->TestPathOpt)) << "\n";
+  if (Opt->OutPathOpt)
+    std::cout << "Dump output to "
+              << fs::canonical(fs::absolute(*Opt->OutPathOpt)) << "\n";
 
-  RUN_TEST(Sat2_t, TestPathOpt, OutPathOpt);
-  RUN_TEST(Sat3_t, TestPathOpt, OutPathOpt);
-  RUN_TEST(Sat4_t, TestPathOpt, OutPathOpt);
+  if (Opt->RunSpecific) {
+    printTime(bench(*Opt->RunSpecific, *Opt->TestPathOpt, Opt->Check),
+              std::to_string(*Opt->RunSpecific), Opt->OutPathOpt);
+    return 0;
+  }
+
+  for (int i = 2; i < COUNT_SAT + 1; ++i)
+    printTime(bench(i, *Opt->TestPathOpt, Opt->Check), std::to_string(i),
+              Opt->OutPathOpt);
 
   return 0;
 }
 
 // ----------------------- Implementations -----------------------------
 
-template <typename SatT> Time_t bench(fs::path TestPath) {
+template <typename SatT>
+Time_t _bench(fs::path TestPath, std::optional<bool> Check);
+
+Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check) {
+  switch (Num) {
+  case 1:
+    return _bench<Sat1_t>(TestPath, Check);
+  case 2:
+    return _bench<Sat2_t>(TestPath, Check);
+  case 3:
+    return _bench<Sat3_t>(TestPath, Check);
+  case 4:
+    return _bench<Sat4_t>(TestPath, Check);
+  }
+  std::cerr << "Sat " << std::to_string(Num) << " wasn't implemented!\n";
+  return Time_t{};
+}
+
+template <typename SatT>
+Time_t _bench(fs::path TestPath, std::optional<bool> Check) {
   auto [VarCount, Value] = inputFromFile(TestPath);
   SatT SatVar(VarCount, std::move(Value));
 
   auto AnalyzeTime = ch::high_resolution_clock::now();
   SatVar.analyze();
-  auto StartTime = ch::high_resolution_clock::now();
-  SatVar.check();
-  auto MiddleTime = ch::high_resolution_clock::now();
-  SatVar.find();
-  auto EndTime = ch::high_resolution_clock::now();
+  auto CheckTimeStart = ch::high_resolution_clock::now();
+  bool Result = SatVar.check();
+  auto CheckTimeEnd = ch::high_resolution_clock::now();
 
-  return Time_t{ch::duration_cast<ch::microseconds>(StartTime - AnalyzeTime),
-                ch::duration_cast<ch::microseconds>(MiddleTime - StartTime),
-                ch::duration_cast<ch::microseconds>(EndTime - MiddleTime)};
+  if (Check && *Check != Result)
+    std::cerr << "\033[1;31mResult is " << Result << " but Check is " << *Check
+              << "!\033[0m\n";
+
+  auto FindTimeStart = ch::high_resolution_clock::now();
+  SatVar.find();
+  auto FindTimeEnd = ch::high_resolution_clock::now();
+
+  return Time_t{
+      ch::duration_cast<ch::microseconds>(CheckTimeStart - AnalyzeTime),
+      ch::duration_cast<ch::microseconds>(CheckTimeEnd - CheckTimeStart),
+      ch::duration_cast<ch::microseconds>(FindTimeEnd - FindTimeStart)};
 }
 
-std::pair<std::optional<fs::path>, std::optional<fs::path>>
-parseArgs(int Argc, char *Argv[]) {
+template <typename T>
+std::optional<T> readOption(po::variables_map &Vm, std::string OptName) {
+  return Vm.count(OptName) ? std::make_optional(Vm[OptName].as<T>())
+                           : std::nullopt;
+}
+
+std::optional<Opt_t> parseArgs(int Argc, char *Argv[]) {
   // Declare the supported options.
   po::options_description Desc("Allowed options");
   Desc.add_options()("help,h", "Produce help message")(
-      "test,t", po::value<fs::path>(), "Select test path to run")(
-      "output,o", po::value<fs::path>(),
-      "Select data path to out result. If no specified to stdout");
+      "test,t", po::value<fs::path>(),
+      "Path to get test to run")("output,o", po::value<fs::path>(),
+                                 "Path to print result. Default=stdout")(
+      "check", po::value<bool>(), "Check for SAT/UNSAT, wait for bool value")(
+      "run", po::value<int>(),
+      "Run specific SAT realization, wait for int value");
 
   po::variables_map Vm;
   po::store(po::parse_command_line(Argc, Argv, Desc), Vm);
   po::notify(Vm);
 
-  std::optional<fs::path> OutPath =
-      Vm.count("output") ? std::make_optional(Vm["output"].as<fs::path>())
-                         : std::nullopt;
-  std::optional<fs::path> TestPath =
-      Vm.count("test") ? std::make_optional(Vm["test"].as<fs::path>())
-                       : std::nullopt;
-  if (TestPath && fs::exists(*TestPath) && (!OutPath || fs::exists(*OutPath)))
-    return std::make_pair(TestPath, OutPath);
+  if (Vm.count("help")) {
+    std::cout << Desc << "\n";
+    return std::nullopt;
+  }
+
+  Opt_t Opt;
+
+  Opt.TestPathOpt = readOption<fs::path>(Vm, "test");
+  Opt.OutPathOpt = readOption<fs::path>(Vm, "output");
+  Opt.RunSpecific = readOption<int>(Vm, "run");
+  Opt.Check = readOption<bool>(Vm, "check");
+
+  if (Opt.TestPathOpt && fs::exists(*Opt.TestPathOpt) &&
+      (!Opt.OutPathOpt || fs::exists(*Opt.OutPathOpt)))
+    return Opt;
 
   // Process errors
-  if (Vm.count("help"))
-    std::cout << Desc << "\n";
 
-  if (!TestPath)
-    std::cerr << "You have to specify test file!\n" << Desc << "\n";
+  if (!Opt.TestPathOpt)
+    std::cerr << "\033[1;31mYou have to specify test file!\n"
+              << Desc << "\033[0m\n";
 
-  if (TestPath && !fs::exists(*TestPath))
-    std::cerr << "Test path " << fs::absolute(*TestPath)
-              << " is not correct path!\n";
+  if (Opt.TestPathOpt && !fs::exists(*Opt.TestPathOpt))
+    std::cerr << "\033[1;31mTest path " << fs::absolute(*Opt.TestPathOpt)
+              << " is not correct path!\n\033[0m";
 
-  if (OutPath && !fs::exists(*OutPath))
-    std::cerr << "Output path " << fs::absolute(*OutPath)
-              << " is not correct path!\n";
+  if (Opt.OutPathOpt && !fs::exists(*Opt.OutPathOpt))
+    std::cerr << "\033[1;31mOutput path " << fs::absolute(*Opt.OutPathOpt)
+              << " is not correct path!\n\033[0m";
 
-  return std::make_pair(std::nullopt, std::nullopt);
+  return std::nullopt;
 }
 
 template <typename T>
-concept printable = requires(T a, std::string b) { a << b; };
+concept printable = requires(T a, std::string b) {
+  a << b;
+};
 template <printable T>
 static void _printTimeFormat(Time_t Time, std::string Info, T &&Out) {
-  Out << Info << "\n";
+  Out << "Sat: " << Info << "\n";
   Out << "Analyze:\t" << Time.AnalyzeTime.count() << "\t"
       << "Check:\t" << Time.CheckTime.count() << "\t"
       << "Find:\t" << Time.FindTime.count() << "\n";

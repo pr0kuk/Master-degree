@@ -15,7 +15,7 @@ parser.add_argument('-o', help = 'output files', nargs='*', metavar='OUT', actio
 args = parser.parse_args()
 
 # clearing output files
-if len(args.dir) > 0:
+if args.dir and len(args.dir) > 0:
     for o in args.o:
         open(o, 'w').close()
 

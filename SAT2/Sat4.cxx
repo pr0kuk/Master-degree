@@ -59,11 +59,13 @@ Sat Sat4_t::setVar(int VarSet) const {
 bool Sat4_t::check() const {
   if (!CanBeTrue)
     return false;
-
   if (this->VarCount == 0 || this->Value.empty())
     return true;
+
   for (int Var : this->getClause(0)) {
-    if (this->setVar(Var)->check())
+    auto SatSetVar = this->setVar(Var);
+    SatSetVar->analyze();
+    if (SatSetVar->check())
       return true;
   }
   return false;
@@ -85,12 +87,13 @@ template <typename S_t>
 bool detailSat4::find(const S_t &S, std::vector<char> &VarSets) {
   if (!S->canBeTrue())
     return false;
-
   if (S->getVarCount() == 0 || S->isEmpty())
     return true;
 
   for (int Var : S->getClause(0)) {
-    if (find(S->setVar(Var), VarSets)) {
+    auto SatSetVar = S->setVar(Var);
+    SatSetVar->analyze();
+    if (find(SatSetVar, VarSets)) {
       VarSets[std::abs(Var) - 1] = Var > 0;
       return true;
     }

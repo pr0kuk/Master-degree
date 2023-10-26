@@ -15,7 +15,9 @@ import Sat4;
 auto FILEPATH = std::filesystem::path(__FILE__).parent_path();
 
 template <class T1, class T2>
-concept equality_comparable = requires(T1 a, T2 b) { a == b; };
+concept equality_comparable = requires(T1 a, T2 b) {
+  a == b;
+};
 
 static size_t NumPass = 0;
 static size_t NumFail = 0;
@@ -23,23 +25,6 @@ static size_t NumFail = 0;
 std::string getBaseName(std::string Name) {
   auto Pos = Name.rfind('/') + 1;
   return Name.substr(Pos, Name.size() - Pos);
-}
-template <typename T1, equality_comparable<T1> T2>
-bool compare(T1 Lhs, T2 Rhs, std::string ErrMessage, size_t Line,
-             const char Filename[], const char Functionname[]) {
-  // number_of_tests++;
-  if (Lhs == Rhs) {
-    // number_of_passed++;
-    //  std::cout << "\033[1;32mPASSED!\033[0m\n";
-    return true;
-  }
-  // number_of_failed++;
-  std::cout << "\033[1;31mTEST \"" << Functionname << "\" FAILED!\n";
-  std::cout << "Where: " << Filename << ":" << Line << std::endl;
-  std::cout << "\033[1;34mLhs: " << Lhs << "\nRhs: " << Rhs << "\033[0m"
-            << std::endl;
-  std::cout << "\033[1;33m" + ErrMessage << "\033[0m" << std::endl;
-  return false;
 }
 
 template <typename T1, equality_comparable<T1> T2>
@@ -71,8 +56,7 @@ void summary() {
     std::cout << "\033[1;32m[" << NumPass << "/" << NumFail + NumPass
               << "] TESTS PASSED\n";
 }
-#define EXPECT_EQ_MSG(lhs, rhs, ErrMessage)                                    \
-  compare(lhs, rhs, ErrMessage, __LINE__, __FILE__, __FUNCTION__)
+
 #define EXPECT_EQ(lhs, rhs)                                                    \
   compare(lhs, rhs, #lhs, #rhs, __LINE__, __FILE__, __FUNCTION__, true)
 #define EXPECT_NEQ(lhs, rhs)                                                   \
@@ -136,15 +120,9 @@ template <typename SatT> void testFind() {
 
   SatT Sat4(2, {{1, 2}, {-1, 2}});
   EXPECT_EQ(*Sat4.find(), "~x1 x2");
-
-  auto [VarCount, Value] =
-      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
-  SatT SatBig(VarCount, std::move(Value));
-  EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 ~x4 ~x5 x6 ~x7 ~x8 x9 ~x10 ~x11 ~x12 "
-                            "~x13 x14 x15 ~x16 x17 ~x18 ~x19 x20");
 }
 
-void testFind3() { // to implement
+void testFind3() {
   Sat3_t SatFalse(1, {{1}, {-1}});
   EXPECT_EQ(SatFalse.find().has_value(), false);
 
@@ -169,6 +147,31 @@ void testFind3() { // to implement
                             "x14 x15 ~x16 x17 x18 x19 x20");
 }
 
+void testFind4() {
+  Sat4_t SatFalse(1, {{1}, {-1}});
+  EXPECT_EQ(SatFalse.find().has_value(), false);
+
+  Sat4_t Sat1(3, {{1, 2, -3}, {-1, 2}});
+  auto Set1Str = Sat1.find();
+  EXPECT_EQ(Set1Str.has_value(), true);
+  EXPECT_EQ(*Set1Str, "x1 x2 ~x3");
+
+  Sat4_t Sat2(3, {{1, 2, -3}, {1, 2}});
+  EXPECT_EQ(*Sat2.find(), "x1 ~x2 ~x3");
+
+  Sat4_t Sat3(2, {{1, -2}, {1, 2}});
+  EXPECT_EQ(*Sat3.find(), "x1 ~x2");
+
+  Sat4_t Sat4(2, {{1, 2}, {-1, 2}});
+  EXPECT_EQ(*Sat4.find(), "x1 x2");
+
+  auto [VarCount, Value] =
+      inputFromFile(FILEPATH / "cnf/for_tests/uf20-01.cnf");
+  Sat4_t SatBig(VarCount, std::move(Value));
+  EXPECT_EQ(*SatBig.find(), "x1 ~x2 ~x3 x4 ~x5 ~x6 ~x7 ~x8 ~x9 x10 ~x11 ~x12 "
+                            "x13 x14 x15 ~x16 x17 ~x18 ~x19 x20");
+}
+
 void testAnalyze() { // to implement
   Sat4_t Sat1(4, {{1, 2, -3}, {4}, {-1, 2}});
   EXPECT_EQ(Sat1.dumpStr(), "( x1 | x2 | ~x3 ) & ( x4 ) & ( ~x1 | x2 )");
@@ -180,13 +183,17 @@ int main(int argc, char **argv) {
   testForTest();
   testSetVar();
   testFileInput();
-  testCheck<Sat1_t>();
-  testFind<Sat1_t>();
-  testCheck<Sat2_t>();
-  testFind<Sat2_t>();
-  testCheck<Sat3_t>();
-  testFind3(); // different method to find final result
   testAnalyze();
+
+  testCheck<Sat1_t>();
+  testCheck<Sat2_t>();
+  testCheck<Sat3_t>();
+  testCheck<Sat4_t>();
+
+  testFind<Sat1_t>();
+  testFind<Sat2_t>();
+  testFind3(); // different method to find final result
+  testFind4(); // different method to find final result
 
   summary();
 }
