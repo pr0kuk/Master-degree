@@ -6,7 +6,8 @@ import argparse
 import re
 from pyparsing import Literal, Optional, Word, nums, Or, one_of
 dir_path = os.path.dirname(os.path.realpath(__file__)) 
-Sats = ['Sat2_t', 'Sat3_t']
+timeout = 600 # seconds
+Sats = ['4', '5','6']
 res = {}
 
 # parsing arguments
@@ -29,14 +30,20 @@ for d, i in zip(args.dir, range(len(args.o))):
     # calling bench.cxx
     if len(args.dir) > 0:
         for f in dir_list:
-            proc = subprocess.call([os.path.join(dir_path,'build', 'bench'), '-t', os.path.join(dir_path,d,f), '-o', os.path.join(dir_path,o) if o!='' else o])
-
+            for s in Sats:
+                print('Sat: ' + s)
+                try:
+                    proc = subprocess.call([os.path.join(dir_path,'build', 'bench'), '-t', os.path.join(dir_path,d,f), '-o', os.path.join(dir_path,o) if o!='' else o,'--run', s, '--onlycheck', 'true'], timeout = timeout)
+                except subprocess.TimeoutExpired as e:
+                    with open(o, 'a') as out:
+                        out.write('Sat: ' + s + '\nCheck: '+str(timeout*1000)+'\n')
+                    
 # reading results
 for o in args.o:
     if o != '':
         with open(o, 'r') as out:
             res[o] = {sat:np.zeros(4) for sat in Sats}
-            pattern = one_of(Sats) + Optional(Literal("Analyze:") + Word(nums)).suppress() + Optional(Literal("Check:").suppress() + Word(nums)) + Optional(Literal("Find:") + Word(nums)).suppress()
+            pattern = Literal("Sat:").suppress() + one_of(Sats) + Optional(Literal("Analyze:") + Word(nums)).suppress() + Optional(Literal("Check:").suppress() + Word(nums)) + Optional(Literal("Find:") + Word(nums)).suppress()
             for sat, time in pattern.searchString(re.sub(r'\$.?\n', '', out.read())):
                 res[o][sat][1] += float(time) # check time
                 res[o][sat][3] += 1           # number of files
