@@ -12,3 +12,10 @@ cnf/uuf50_218
 cnf/uuf75_325
 cnf/uuf125_538
 data/
+CMakeFiles/
+*vcxproj*
+cmake_install.cmake
+CMakeCache.txt
+.vs/
+*.sln
+CMakeSettings.json
