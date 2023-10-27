@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.28)
 project(std_module_example CXX)
 
-# Turning off extensions avoids and issue with the clang 16 compiler
-# clang 17 and greater can avoid this setting
-set(CMAKE_CXX_EXTENSIONS OFF)
-# Set the version of C++ for the project
 set(CMAKE_CXX_STANDARD 20)
-
+set(CMAKE_C_COMPILER "clang-17")
+set(CMAKE_CXX_COMPILER "clang++-17")
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_DEBUG "")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 find_package( Boost 1.40 COMPONENTS program_options REQUIRED )
 include_directories( ${Boost_INCLUDE_DIR} )
