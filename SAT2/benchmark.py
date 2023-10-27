@@ -6,8 +6,9 @@ import argparse
 import re
 from pyparsing import Literal, Optional, Word, nums, Or, one_of
 dir_path = os.path.dirname(os.path.realpath(__file__)) 
-timeout = 600 # seconds
-Sats = ['4', '5','6']
+timeout = 300 # seconds
+limit_fails = 5
+Sats = ['6']
 res = {}
 
 # parsing arguments
@@ -29,14 +30,21 @@ for d, i in zip(args.dir, range(len(args.o))):
 
     # calling bench.cxx
     if len(args.dir) > 0:
-        for f in dir_list:
+        number_of_timeout_fails = {s: 0 for s in Sats}
+        for f, j in zip(dir_list, range(len(dir_list))):
             for s in Sats:
-                print('Sat: ' + s)
+                if number_of_timeout_fails[s] == limit_fails:
+                    continue
+                print('Sat: ' + s, 'test: [' + str(j) + '/'+ str(len(dir_list)) + ']')
                 try:
-                    proc = subprocess.call([os.path.join(dir_path,'build', 'bench'), '-t', os.path.join(dir_path,d,f), '-o', os.path.join(dir_path,o) if o!='' else o,'--run', s, '--onlycheck', 'true'], timeout = timeout)
+                    proc = subprocess.call([os.path.join(dir_path, 'build', 'bench'), '-t', os.path.join(dir_path,d,f), '-o', os.path.join(dir_path,o) if o != '' else o, '--run', s, '--onlycheck', 'true'], timeout = timeout)
+                    number_of_timeout_fails[s] = 0
                 except subprocess.TimeoutExpired as e:
-                    with open(o, 'a') as out:
-                        out.write('Sat: ' + s + '\nCheck: '+str(timeout*1000)+'\n')
+                    with open(o, 'a') as out: #44321473
+                        out.write('Sat: ' + s + '\nCheck: ' + str(int(timeout * 1e6)) + '\n')
+                        number_of_timeout_fails[s] += 1
+                        continue
+
                     
 # reading results
 for o in args.o:
@@ -52,7 +60,7 @@ for o in args.o:
 
 #plotting graphs
 measurements = [[m[i][1] for m in np.array(list(res.values()))] for i in Sats]
-x = np.arange(len(res))  # the label locations
+x = np.arange(len(res)) 
 width = 0.25  # the width of the bars
 multiplier = 0
 fig, ax = plt.subplots(layout='constrained')
@@ -61,7 +69,7 @@ for attribute, measurement in zip(Sats, measurements) :
     rects = ax.bar(x + offset, measurement, width, label=attribute)
     ax.bar_label(rects, padding=3)
     multiplier += 1
-ax.set_ylabel('Time (ms)')
+ax.set_ylabel('Time (us)')
 ax.set_title('Time of alogorithms')
 ax.set_xticks(x + width, res.keys())
 ax.legend(loc='upper left')
