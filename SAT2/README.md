@@ -1,11 +1,10 @@
 # Prerequests
 
-* Download clang-17 using [link](https://ubuntuhandbook.org/index.php/2023/09/how-to-install-clang-17-or-16-in-ubuntu-22-04-20-04/).
-* Download clang++, abi support, clang-tools-17
-* Download python3
-* Download python libs: argparse, os, numpy, pyplot, subprocess
-* Download cmake-2.38+ using [link](https://cmake.org/download/) in binary distrubutions
-* Donwload ninja-1.11+ using [link](https://github.com/ninja-build/ninja/releases)
+* Compiler: Clang 17+ / MSVC 14.34+
+* Cmake: 3.28+
+* Generator: Ninja 1.11+ / VS 2022+
+* Python: 3+
+* Boost: 1.40+
 
 # Build project
 * Ether set env variables **CMAKE** and **NINJA** with /full/path to binaries or add directory to **PATH** 
