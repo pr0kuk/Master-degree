@@ -77,8 +77,8 @@ bool Sat4_t::innerFind(std::vector<char> &VarSets) const {
 
 // --------- DIFFER ---------
 void Sat4_t::analyze() {
-  std::sort(
-      this->Value.begin(), this->Value.end(),
+  std::ranges::stable_sort(
+      this->Value,
       [](const auto &Lhs, const auto &Rhs) { return Lhs.size() < Rhs.size(); });
 }
 // --------- DIFFER ---------
