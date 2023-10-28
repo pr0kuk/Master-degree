@@ -19,3 +19,4 @@ CMakeCache.txt
 .vs/
 *.sln
 CMakeSettings.json
+Debug/
