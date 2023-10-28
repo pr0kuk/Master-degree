@@ -8,7 +8,7 @@ from pyparsing import Literal, Optional, Word, nums, Or, one_of
 dir_path = os.path.dirname(os.path.realpath(__file__)) 
 timeout = 300 # seconds
 limit_fails = 3
-Sats = ['1','2','3','4','5','6'] # enumerating the implementations for analysis
+Sats = ['4','5','6'] # enumerating the implementations for analysis
 res = {} # storage for results
 
 # parsing arguments
@@ -56,6 +56,8 @@ for o in args.o:
                 res[o][sat][3] += 1           # number of files
             for k in Sats:
                 res[o][k][:3] = np.divide(res[o][k][:3], res[o][k][3]) if res[o][k][3] != 0 else np.ones(3)*int(timeout*1e6) # averaging
+                if res[o][k][1] == int(timeout * 1e6):
+                    res[o][k][1] = - 1
 
 #plotting graphs
 measurements = [[m[i][1] for m in np.array(list(res.values()))] for i in Sats] # reformatting res for plots
@@ -65,11 +67,12 @@ multiplier = 0
 fig, ax = plt.subplots(layout='constrained')
 for attribute, measurement in zip(Sats, measurements) :
     offset = width * multiplier
-    rects = ax.bar(x + offset, measurement, width, label=attribute)
+    rects = ax.bar(x + offset, measurement, width, label='Sat'+attribute)
     ax.bar_label(rects, padding=3)
     multiplier += 1
 ax.set_ylabel('Time (us)')
 ax.set_title('Time of alogorithms')
-ax.set_xticks(x + len(Sats)/(len(Sats)+1)/2, res.keys())
+# ax.set_xticks(x + len(Sats)/(len(Sats)+1)/2, res.keys())
+ax.set_xticks(x + 0.25, res.keys())
 ax.legend(loc='upper left')
 plt.show()
