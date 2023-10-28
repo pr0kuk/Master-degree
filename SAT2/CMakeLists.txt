@@ -8,9 +8,13 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_DEBUG "")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+set(BOOST_ALL_DYN_LINK OFF)
 
-find_package( Boost 1.40 COMPONENTS program_options REQUIRED )
-include_directories( ${Boost_INCLUDE_DIR} )
+find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 # Create an executable
 add_executable(test test.cxx)
