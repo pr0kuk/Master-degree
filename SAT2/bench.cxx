@@ -39,7 +39,8 @@ struct Time_t {
 void printTime(Time_t Time, std::string Info = "Time",
                std::optional<fs::path> = std::nullopt);
 
-Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check, std::optional<bool> OnlyCheck);
+Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check,
+             std::optional<bool> OnlyCheck);
 
 int main(int Argc, char *Argv[]) {
   auto Opt = parseArgs(Argc, Argv);
@@ -53,14 +54,15 @@ int main(int Argc, char *Argv[]) {
               << fs::canonical(fs::absolute(*Opt->OutPathOpt)) << "\n";
 
   if (Opt->RunSpecific) {
-    printTime(bench(*Opt->RunSpecific, *Opt->TestPathOpt, Opt->Check, Opt->OnlyCheck),
-              std::to_string(*Opt->RunSpecific), Opt->OutPathOpt);
+    printTime(
+        bench(*Opt->RunSpecific, *Opt->TestPathOpt, Opt->Check, Opt->OnlyCheck),
+        std::to_string(*Opt->RunSpecific), Opt->OutPathOpt);
     return 0;
   }
 
   for (int i = 2; i < COUNT_SAT + 1; ++i)
-    printTime(bench(i, *Opt->TestPathOpt, Opt->Check, Opt->OnlyCheck), std::to_string(i),
-              Opt->OutPathOpt);
+    printTime(bench(i, *Opt->TestPathOpt, Opt->Check, Opt->OnlyCheck),
+              std::to_string(i), Opt->OutPathOpt);
 
   return 0;
 }
@@ -68,9 +70,11 @@ int main(int Argc, char *Argv[]) {
 // ----------------------- Implementations -----------------------------
 
 template <typename SatT>
-Time_t _bench(fs::path TestPath, std::optional<bool> Check, std::optional<bool> OnlyCheck);
+Time_t _bench(fs::path TestPath, std::optional<bool> Check,
+              std::optional<bool> OnlyCheck);
 
-Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check, std::optional<bool> OnlyCheck) {
+Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check,
+             std::optional<bool> OnlyCheck) {
   switch (Num) {
   case 1:
     return _bench<Sat1_t>(TestPath, Check, OnlyCheck);
@@ -90,7 +94,8 @@ Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check, std::optiona
 }
 
 template <typename SatT>
-Time_t _bench(fs::path TestPath, std::optional<bool> Check, std::optional<bool> OnlyCheck) {
+Time_t _bench(fs::path TestPath, std::optional<bool> Check,
+              std::optional<bool> OnlyCheck) {
   auto [VarCount, Value] = inputFromFile(TestPath);
   SatT SatVar(VarCount, std::move(Value));
 
@@ -131,8 +136,10 @@ std::optional<Opt_t> parseArgs(int Argc, char *Argv[]) {
       "Path to get test to run")("output,o", po::value<fs::path>(),
                                  "Path to print result. Default=stdout")(
       "check", po::value<bool>(), "Check for SAT/UNSAT, wait for bool value")(
-      "run", po::value<int>(), "Run specific SAT realization, wait for int value")(
-      "onlycheck", po::value<bool>(), "Run only check() withoud find(), wait for bool value:");
+      "run", po::value<int>(),
+      "Run specific SAT realization, wait for int value")(
+      "onlycheck", po::value<bool>(),
+      "Run only check() withoud find(), wait for bool value:");
 
   po::variables_map Vm;
   po::store(po::parse_command_line(Argc, Argv, Desc), Vm);

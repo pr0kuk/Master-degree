@@ -1,9 +1,9 @@
 build
+install
 tmp
 .vscode
 *.out
 *.pcm
-MyMakefile
 cnf/uf20_91
 cnf/uf50_218
 cnf/uf75_325

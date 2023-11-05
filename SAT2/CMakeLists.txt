@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.28)
 project(std_module_example CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_COMPILER "clang-17")
 set(CMAKE_CXX_COMPILER "clang++-17")
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS_DEBUG "")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-fconstexpr-backtrace-limit=0")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fconstexpr-backtrace-limit=0")
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
@@ -48,3 +48,10 @@ foreach(NUM RANGE 1 6)
   target_link_libraries(test Sat${NUM})
   target_link_libraries(bench Sat${NUM})
 endforeach()
+
+install(TARGETS test DESTINATION .)
+install(TARGETS bench DESTINATION .)
+
+# COMPILE TIME
+
+add_subdirectory(CompileTime)

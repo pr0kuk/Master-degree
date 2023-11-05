@@ -3,7 +3,7 @@
 * Compiler: Clang 17+ / MSVC 14.34+
 * Cmake: 3.28+
 * Generator: Ninja 1.11+ / VS 2022+
-* Python: 3+
+* Python: 3.6+
 * Boost: 1.40+
 
 # Build project
@@ -14,8 +14,9 @@
 
 Example:
 ```bash
-CMAKE=/.../cmake-3.28.0-rc2-linux-x86_64/bin/cmake NINJA=/.../ninja make
-./build/test
+CMAKE=/full/path/to/cmake NINJA=/full/path/to/ninja make
+./install/test
+./install/testCompile
 ```
 
 # Usage examples
