@@ -104,15 +104,17 @@ Time_t _bench(fs::path TestPath, std::optional<bool> Check, std::optional<bool> 
     std::cerr << "\033[1;31mResult is " << Result << " but Check is " << *Check
               << "!\033[0m\n";
 
-  auto FindTimeStart = ch::high_resolution_clock::now();
-  if (OnlyCheck)
+  auto FindTime = CheckTimeEnd - CheckTimeEnd; // 0
+  if (!OnlyCheck || (OnlyCheck && !OnlyCheck.value())) {
+    auto FindTimeStart = ch::high_resolution_clock::now();
     SatVar.find();
-  auto FindTimeEnd = (OnlyCheck) ? FindTimeStart : ch::high_resolution_clock::now();
+    FindTime = ch::high_resolution_clock::now() - FindTimeStart;
+  }
 
   return Time_t{
       ch::duration_cast<ch::microseconds>(CheckTimeStart - AnalyzeTime),
       ch::duration_cast<ch::microseconds>(CheckTimeEnd - CheckTimeStart),
-      ch::duration_cast<ch::microseconds>(FindTimeEnd - FindTimeStart)};
+      ch::duration_cast<ch::microseconds>(FindTime)};
 }
 
 template <typename T>
