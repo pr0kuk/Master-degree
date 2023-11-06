@@ -134,7 +134,7 @@ consteval void testCheck1() {
   EXPECT_EQ_COMPILE(USE_TEST(Sat1_t, TestSmall_1).check(), true);
   EXPECT_EQ_COMPILE(USE_TEST(Sat1_t, TestSmall_2).check(), true);
   EXPECT_EQ_COMPILE(USE_TEST(Sat1_t, TestSmall_4).check(), false);
-  // EXPECT_EQ_COMPILE(USE_TEST(Sat1_t, TestUF_20).check(), false);
+  EXPECT_EQ_COMPILE(USE_TEST(Sat1_t, TestUF_20).check(), true);
 }
 
 int main(int argc, char **argv) {
