@@ -4,13 +4,6 @@ tmp
 .vscode
 *.out
 *.pcm
-cnf/uf20_91
-cnf/uf50_218
-cnf/uf75_325
-cnf/uf125_538
-cnf/uuf50_218
-cnf/uuf75_325
-cnf/uuf125_538
 data/
 CMakeFiles/
 *vcxproj*
