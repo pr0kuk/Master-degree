@@ -100,6 +100,7 @@ template <int ClauseCount> consteval bool Sat1_t<ClauseCount>::check() const {
   case SAT_STATE::FALSE:
     return false;
   default:
+    break;
   }
   return setLastVar(true).check() || setLastVar(false).check();
 }
