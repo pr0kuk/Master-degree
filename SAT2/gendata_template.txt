@@ -1,0 +1,18 @@
+module;
+
+#include <array>
+#include <vector>
+
+export module genData;
+
+export template <int VarCount, int ClauseCount> struct Test_t {
+  const std::array<std::array<int, 3>, ClauseCount> Data;
+  consteval Test_t(std::array<std::array<int, 3>, ClauseCount> NewData)
+      : Data(NewData){};
+  consteval int getClauseCount() const { return ClauseCount; }
+  consteval int getVarCount() const { return VarCount; }
+  consteval int getData(int x, int y) const { return Data[x][y]; }
+  consteval std::array<std::array<int, 3>, ClauseCount> getData() const {
+    return Data;
+  }
+};
