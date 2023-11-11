@@ -4,13 +4,13 @@ import argparse
 
 # parsing arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('-v', help='Number of variables', nargs=1, metavar='VARCOUNT', default = [0] ,type = int)
-parser.add_argument('-c', help = 'Number of clauses', nargs=1, metavar='CLAUSECOUNT', default = [0], type = int)
-parser.add_argument('-o', help = 'Output file', nargs=1, metavar='OUT', required = True, type = str)
+parser.add_argument('-v', help='Number of variables', nargs=1, metavar='VarCount', default = [0] ,type = int)
+parser.add_argument('-c', help = 'Number of clauses', nargs=1, metavar='ClauseCount', default = [0], type = int)
+parser.add_argument('-o', help = 'Output file', nargs=1, metavar='Out', required = True, type = str)
 parser.add_argument('-n', help = 'Number of tests', nargs=1, metavar='N', default = [0], type = int)
 args = parser.parse_args()
 
-# initializeing parameters
+# initializing parameters
 VarCount = 10 if args.v[0] == 0 else args.v[0]
 ClauseCount = 20 if args.c[0] == 0 else args.c[0]
 N = 1 if args.n[0] == 0 else args.n[0]
