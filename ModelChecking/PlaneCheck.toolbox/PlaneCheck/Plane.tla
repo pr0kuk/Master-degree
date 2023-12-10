@@ -10,13 +10,14 @@ variables
 
 define
 stands == plane + chassi > 0
-engine_work == plane = 1 => engine = 1
+engine_work == plane = 1 => engine = 0
 pilot_safe == pilot = 1 => engine = 0
 end define;
 
 fair process Engine \in 1..2
 begin
 EngineChange:
+while (TRUE) do
  if (pilot /= 1 /\ engine = 0) then
     engine := 1
  elsif (plane /= 1 /\ engine = 1) then
@@ -24,11 +25,13 @@ EngineChange:
  else 
     skip;
  end if;
+end while;
 end process;
 
 fair process Plane \in 1..2
 begin
 PlaneChange:
+while (TRUE) do
  if (pilot /= 1 /\ plane = 0 /\ engine = 1) then
     plane := 1
  elsif (chassi = 1 /\ plane = 1 /\ pilot /= 1) then
@@ -36,12 +39,14 @@ PlaneChange:
  else
     skip;   
  end if;
+end while;
 end process;
 
 fair process Pilot \in 1..2
     variable pilotNeed = 1
 begin
 PilotChange:
+while (TRUE) do
  if (pilot /= 1 /\ plane = 0 /\ engine = 0) then
     pilot := 1;
  elsif (pilot = 1 /\ plane = 0 /\ engine = 0) then
@@ -52,16 +57,19 @@ PilotChange:
  else
     skip;
  end if;
+end while;
 end process;
 
 fair process Chassi \in 1..2
 begin
 ChassiChange:
+while (TRUE) do
  if (chassi = 1 /\ plane = 1) then
     chassi := 0;
  else
     chassi := 1
  end if;
+end while;
 end process;
 
 end algorithm;*)
@@ -71,7 +79,7 @@ VARIABLES plane, pilot, chassi, engine, pc
 
 (* define statement *)
 stands == plane + chassi > 0
-engine_work == plane = 1 => engine = 1
+engine_work == plane = 1 => engine = 0
 pilot_safe == pilot = 1 => engine = 0
 
 VARIABLE pilotNeed
@@ -99,7 +107,7 @@ EngineChange(self) == /\ pc[self] = "EngineChange"
                                        THEN /\ engine' = 0
                                        ELSE /\ TRUE
                                             /\ UNCHANGED engine
-                      /\ pc' = [pc EXCEPT ![self] = "Done"]
+                      /\ pc' = [pc EXCEPT ![self] = "EngineChange"]
                       /\ UNCHANGED << plane, pilot, chassi, pilotNeed >>
 
 Engine(self) == EngineChange(self)
@@ -111,7 +119,7 @@ PlaneChange(self) == /\ pc[self] = "PlaneChange"
                                       THEN /\ plane' = 0
                                       ELSE /\ TRUE
                                            /\ plane' = plane
-                     /\ pc' = [pc EXCEPT ![self] = "Done"]
+                     /\ pc' = [pc EXCEPT ![self] = "PlaneChange"]
                      /\ UNCHANGED << pilot, chassi, engine, pilotNeed >>
 
 Plane(self) == PlaneChange(self)
@@ -128,7 +136,7 @@ PilotChange(self) == /\ pc[self] = "PilotChange"
                                                  ELSE /\ TRUE
                                                       /\ pilot' = pilot
                                            /\ UNCHANGED pilotNeed
-                     /\ pc' = [pc EXCEPT ![self] = "Done"]
+                     /\ pc' = [pc EXCEPT ![self] = "PilotChange"]
                      /\ UNCHANGED << plane, chassi, engine >>
 
 Pilot(self) == PilotChange(self)
@@ -137,7 +145,7 @@ ChassiChange(self) == /\ pc[self] = "ChassiChange"
                       /\ IF (chassi = 1 /\ plane = 1)
                             THEN /\ chassi' = 0
                             ELSE /\ chassi' = 1
-                      /\ pc' = [pc EXCEPT ![self] = "Done"]
+                      /\ pc' = [pc EXCEPT ![self] = "ChassiChange"]
                       /\ UNCHANGED << plane, pilot, engine, pilotNeed >>
 
 Chassi(self) == ChassiChange(self)
@@ -160,4 +168,4 @@ Termination == <>(\A self \in ProcSet: pc[self] = "Done")
 \* END TRANSLATION
 =============================================================================
 \* Modification History
-\* Last modified Sun Dec 10 17:59:25 MSK 2023 by mark
+\* Last modified Sun Dec 10 18:38:53 MSK 2023 by mark

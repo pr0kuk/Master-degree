@@ -23,7 +23,7 @@ Semantic processing of module MC
 SANY finished.
 @!@!@ENDMSG 2219 @!@!@
 @!@!@STARTMSG 2185:0 @!@!@
-Starting... (2023-12-10 18:00:42)
+Starting... (2023-12-10 18:39:01)
 @!@!@ENDMSG 2185 @!@!@
 @!@!@STARTMSG 2189:0 @!@!@
 Computing initial states...
@@ -35,144 +35,144 @@ Finished computing initial states: 2 distinct states generated.
 Model checking completed. No error has been found.
   Estimates of the probability that TLC did not check all reachable states
   because two distinct states had the same fingerprint:
-  calculated (optimistic):  val = 1.7E-18
-  based on the actual fingerprints:  val = 1.4E-17
+  calculated (optimistic):  val = 4.3E-19
+  based on the actual fingerprints:  val = 3.6E-19
 @!@!@ENDMSG 2193 @!@!@
 @!@!@STARTMSG 2201:0 @!@!@
-The coverage statistics at 2023-12-10 18:00:42
+The coverage statistics at 2023-12-10 18:39:01
 @!@!@ENDMSG 2201 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 101, col 58 to line 101, col 63 of module Plane: 0
+  line 105, col 37 to line 105, col 47 of module Plane: 2
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 102, col 26 to line 102, col 59 of module Plane: 8
+  line 107, col 48 to line 107, col 58 of module Plane: 2
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 103, col 39 to line 103, col 43 of module Plane: 8
+  line 109, col 58 to line 109, col 63 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 103, col 46 to line 103, col 50 of module Plane: 8
+  line 110, col 26 to line 110, col 67 of module Plane: 4
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 103, col 53 to line 103, col 58 of module Plane: 8
+  line 111, col 39 to line 111, col 43 of module Plane: 4
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 103, col 61 to line 103, col 69 of module Plane: 8
+  line 111, col 46 to line 111, col 50 of module Plane: 4
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 109, col 36 to line 109, col 45 of module Plane: 0
+  line 111, col 53 to line 111, col 58 of module Plane: 4
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 111, col 47 to line 111, col 56 of module Plane: 0
+  line 111, col 61 to line 111, col 69 of module Plane: 4
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 113, col 47 to line 113, col 60 of module Plane: 0
+  line 117, col 36 to line 117, col 45 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 114, col 25 to line 114, col 58 of module Plane: 0
+  line 119, col 47 to line 119, col 56 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 115, col 38 to line 115, col 42 of module Plane: 0
+  line 121, col 47 to line 121, col 60 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 115, col 45 to line 115, col 50 of module Plane: 0
+  line 122, col 25 to line 122, col 65 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 115, col 53 to line 115, col 58 of module Plane: 0
+  line 123, col 38 to line 123, col 42 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 115, col 61 to line 115, col 69 of module Plane: 0
+  line 123, col 45 to line 123, col 50 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 121, col 36 to line 121, col 45 of module Plane: 0
+  line 123, col 53 to line 123, col 58 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 122, col 46 to line 122, col 54 of module Plane: 0
+  line 123, col 61 to line 123, col 69 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 124, col 47 to line 124, col 70 of module Plane: 0
+  line 129, col 36 to line 129, col 45 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 125, col 47 to line 125, col 107 of module Plane: 0
+  line 130, col 46 to line 130, col 54 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 127, col 58 to line 127, col 67 of module Plane: 0
+  line 132, col 47 to line 132, col 70 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 129, col 58 to line 129, col 71 of module Plane: 0
+  line 133, col 47 to line 133, col 107 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 130, col 57 to line 130, col 65 of module Plane: 0
+  line 135, col 58 to line 135, col 67 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 131, col 25 to line 131, col 58 of module Plane: 0
+  line 137, col 58 to line 137, col 71 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 132, col 38 to line 132, col 42 of module Plane: 0
+  line 138, col 57 to line 138, col 65 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 132, col 45 to line 132, col 50 of module Plane: 0
+  line 139, col 25 to line 139, col 65 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 132, col 53 to line 132, col 58 of module Plane: 0
+  line 140, col 38 to line 140, col 42 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 138, col 37 to line 138, col 47 of module Plane: 0
+  line 140, col 45 to line 140, col 50 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 139, col 37 to line 139, col 47 of module Plane: 0
+  line 140, col 53 to line 140, col 58 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 140, col 26 to line 140, col 59 of module Plane: 0
+  line 146, col 37 to line 146, col 47 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 141, col 39 to line 141, col 43 of module Plane: 0
+  line 147, col 37 to line 147, col 47 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 141, col 46 to line 141, col 50 of module Plane: 0
+  line 148, col 26 to line 148, col 67 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 141, col 53 to line 141, col 58 of module Plane: 0
+  line 149, col 39 to line 149, col 43 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 141, col 61 to line 141, col 69 of module Plane: 0
+  line 149, col 46 to line 149, col 50 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 79, col 12 to line 79, col 16 of module Plane: 2
+  line 149, col 53 to line 149, col 58 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 79, col 19 to line 79, col 23 of module Plane: 2
+  line 149, col 61 to line 149, col 69 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 79, col 26 to line 79, col 31 of module Plane: 2
+  line 87, col 12 to line 87, col 16 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 79, col 34 to line 79, col 39 of module Plane: 2
+  line 87, col 19 to line 87, col 23 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 79, col 42 to line 79, col 43 of module Plane: 2
+  line 87, col 26 to line 87, col 31 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 79, col 46 to line 79, col 54 of module Plane: 2
+  line 87, col 34 to line 87, col 39 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 97, col 37 to line 97, col 47 of module Plane: 4
+  line 87, col 42 to line 87, col 43 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2221:0 @!@!@
-  line 99, col 48 to line 99, col 58 of module Plane: 4
+  line 87, col 46 to line 87, col 54 of module Plane: 0
 @!@!@ENDMSG 2221 @!@!@
 @!@!@STARTMSG 2202:0 @!@!@
 End of statistics.
 @!@!@ENDMSG 2202 @!@!@
 @!@!@STARTMSG 2200:0 @!@!@
-Progress(3) at 2023-12-10 18:00:42: 12 states generated (2,769 s/min), 8 distinct states found (1,846 ds/min), 0 states left on queue.
+Progress(1) at 2023-12-10 18:39:01: 6 states generated (2,195 s/min), 2 distinct states found (731 ds/min), 0 states left on queue.
 @!@!@ENDMSG 2200 @!@!@
 @!@!@STARTMSG 2199:0 @!@!@
-12 states generated, 8 distinct states found, 0 states left on queue.
+6 states generated, 2 distinct states found, 0 states left on queue.
 @!@!@ENDMSG 2199 @!@!@
 @!@!@STARTMSG 2194:0 @!@!@
-The depth of the complete state graph search is 3.
+The depth of the complete state graph search is 1.
 @!@!@ENDMSG 2194 @!@!@
 @!@!@STARTMSG 2186:0 @!@!@
-Finished in 00s at (2023-12-10 18:00:42)
+Finished in 00s at (2023-12-10 18:39:01)
 @!@!@ENDMSG 2186 @!@!@
