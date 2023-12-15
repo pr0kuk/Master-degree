@@ -1,73 +1,89 @@
 -------------------------------- MODULE Plane --------------------------------
 
 EXTENDS Integers
-(*--algorithm wire
+(*--algorithm Plane
 variables
- plane = 0,
- pilot = 0, \* outside, going to plane, inside
- chassi = 1,
- engine \in 0..1
+ fly = FALSE, 
+ pilot = FALSE,
+ chassi = TRUE,
+ fuel = FALSE,
+ cleaned = FALSE,
+ autopilot = FALSE,
+ up = TRUE
 
 define
-stands == plane + chassi > 0
-engine_work == plane = 1 => engine = 0
-pilot_safe == pilot = 1 => engine = 0
+stands == ~fly => chassi
+enough_fuel == ~fly \/ fuel
+clean_check == pilot => cleaned
+somebody_control == fly => (pilot \/ autopilot)
 end define;
 
-fair process Engine \in 1..2
-begin
-EngineChange:
+fair+ process Staff = "Staff"
+begin StaffChange:
 while (TRUE) do
- if (pilot /= 1 /\ engine = 0) then
-    engine := 1
- elsif (plane /= 1 /\ engine = 1) then
-    engine := 0
- else 
-    skip;
- end if;
+ either
+  if (~fly /\ ~fuel) then
+     fuel := TRUE
+  else 
+     skip;
+  end if;
+ or
+  if (~fly /\ ~cleaned) then
+     cleaned := TRUE
+  else 
+     skip;
+  end if;
+ end either;
 end while;
 end process;
 
-fair process Plane \in 1..2
-begin
-PlaneChange:
+fair+ process Pilot = "Pilot"
+begin PilotChange:
 while (TRUE) do
- if (pilot /= 1 /\ plane = 0 /\ engine = 1) then
-    plane := 1
- elsif (chassi = 1 /\ plane = 1 /\ pilot /= 1) then
-    plane := 0
- else
-    skip;   
- end if;
-end while;
-end process;
-
-fair process Pilot \in 1..2
-    variable pilotNeed = 1
-begin
-PilotChange:
-while (TRUE) do
- if (pilot /= 1 /\ plane = 0 /\ engine = 0) then
-    pilot := 1;
- elsif (pilot = 1 /\ plane = 0 /\ engine = 0) then
-    pilot := pilotNeed;
-    pilotNeed := 1 - pilotNeed
- elsif (pilot = 2 /\ plane = 1) then
-    pilot := 0
+ if (~pilot /\ ~fly /\ cleaned) then
+    pilot := TRUE
+ elsif (pilot /\ ~fly /\ fuel) then
+    fly := TRUE
+ elsif (fly /\ chassi /\ ~up /\ (pilot \/ autopilot)) then \* sit down
+    fly := FALSE || pilot := FALSE || fuel := FALSE || cleaned := FALSE || up := TRUE || autopilot := FALSE
  else
     skip;
  end if;
 end while;
 end process;
 
-fair process Chassi \in 1..2
-begin
-ChassiChange:
+fair+ process Flight = "Flight"
+begin FlightChange:
 while (TRUE) do
- if (chassi = 1 /\ plane = 1) then
-    chassi := 0;
+ either
+  if ((pilot \/ autopilot) /\ fly /\ chassi /\ up) then
+     chassi := FALSE || up := FALSE
+  elsif ((pilot \/ autopilot) /\ fly /\ ~chassi /\ ~up) then
+     chassi := TRUE
+  else
+     skip;
+  end if;
+ or
+  if ((pilot \/ autopilot) /\ fly /\ chassi /\ up) then
+     up := FALSE
+  elsif ((pilot \/ autopilot) /\ fly /\ ~chassi /\ ~up) then
+     chassi := TRUE
+  else
+     skip;
+  end if;
+ end either;
+end while;
+end process;
+
+fair+ process AutoPilot = "AutoPilot"
+begin AutoPilotChange:
+while TRUE do
+ if (pilot /\ fly) then
+    autopilot := TRUE
+ elsif (autopilot /\ fly /\ pilot) then
+    pilot := FALSE
  else
-    chassi := 1
+    skip;
  end if;
 end while;
 end process;
@@ -75,97 +91,121 @@ end process;
 end algorithm;*)
 
 \* BEGIN TRANSLATION
-VARIABLES plane, pilot, chassi, engine, pc
+VARIABLES fly, pilot, chassi, fuel, cleaned, autopilot, up, pc
 
 (* define statement *)
-stands == plane + chassi > 0
-engine_work == plane = 1 => engine = 0
-pilot_safe == pilot = 1 => engine = 0
+stands == ~fly => chassi
+enough_fuel == ~fly \/ fuel
+clean_check == pilot => cleaned
+somebody_control == fly => (pilot \/ autopilot)
 
-VARIABLE pilotNeed
 
-vars == << plane, pilot, chassi, engine, pc, pilotNeed >>
+vars == << fly, pilot, chassi, fuel, cleaned, autopilot, up, pc >>
 
-ProcSet == (1..2) \cup (1..2) \cup (1..2) \cup (1..2)
+ProcSet == {"Staff"} \cup {"Pilot"} \cup {"Flight"} \cup {"AutoPilot"}
 
 Init == (* Global variables *)
-        /\ plane = 0
-        /\ pilot = 0
-        /\ chassi = 1
-        /\ engine \in 0..1
-        (* Process Pilot *)
-        /\ pilotNeed = [self \in 1..2 |-> 1]
-        /\ pc = [self \in ProcSet |-> CASE self \in 1..2 -> "EngineChange"
-                                        [] self \in 1..2 -> "PlaneChange"
-                                        [] self \in 1..2 -> "PilotChange"
-                                        [] self \in 1..2 -> "ChassiChange"]
+        /\ fly = FALSE
+        /\ pilot = FALSE
+        /\ chassi = TRUE
+        /\ fuel = FALSE
+        /\ cleaned = FALSE
+        /\ autopilot = FALSE
+        /\ up = TRUE
+        /\ pc = [self \in ProcSet |-> CASE self = "Staff" -> "StaffChange"
+                                        [] self = "Pilot" -> "PilotChange"
+                                        [] self = "Flight" -> "FlightChange"
+                                        [] self = "AutoPilot" -> "AutoPilotChange"]
 
-EngineChange(self) == /\ pc[self] = "EngineChange"
-                      /\ IF (pilot /= 1 /\ engine = 0)
-                            THEN /\ engine' = 1
-                            ELSE /\ IF (plane /= 1 /\ engine = 1)
-                                       THEN /\ engine' = 0
+StaffChange == /\ pc["Staff"] = "StaffChange"
+               /\ \/ /\ IF (~fly /\ ~fuel)
+                           THEN /\ fuel' = TRUE
+                           ELSE /\ TRUE
+                                /\ fuel' = fuel
+                     /\ UNCHANGED cleaned
+                  \/ /\ IF (~fly /\ ~cleaned)
+                           THEN /\ cleaned' = TRUE
+                           ELSE /\ TRUE
+                                /\ UNCHANGED cleaned
+                     /\ fuel' = fuel
+               /\ pc' = [pc EXCEPT !["Staff"] = "StaffChange"]
+               /\ UNCHANGED << fly, pilot, chassi, autopilot, up >>
+
+Staff == StaffChange
+
+PilotChange == /\ pc["Pilot"] = "PilotChange"
+               /\ IF (~pilot /\ ~fly /\ cleaned)
+                     THEN /\ pilot' = TRUE
+                          /\ UNCHANGED << fly, fuel, cleaned, autopilot, up >>
+                     ELSE /\ IF (pilot /\ ~fly /\ fuel)
+                                THEN /\ fly' = TRUE
+                                     /\ UNCHANGED << pilot, fuel, cleaned, 
+                                                     autopilot, up >>
+                                ELSE /\ IF (fly /\ chassi /\ ~up /\ (pilot \/ autopilot))
+                                           THEN /\ /\ autopilot' = FALSE
+                                                   /\ cleaned' = FALSE
+                                                   /\ fly' = FALSE
+                                                   /\ fuel' = FALSE
+                                                   /\ pilot' = FALSE
+                                                   /\ up' = TRUE
+                                           ELSE /\ TRUE
+                                                /\ UNCHANGED << fly, pilot, 
+                                                                fuel, cleaned, 
+                                                                autopilot, up >>
+               /\ pc' = [pc EXCEPT !["Pilot"] = "PilotChange"]
+               /\ UNCHANGED chassi
+
+Pilot == PilotChange
+
+FlightChange == /\ pc["Flight"] = "FlightChange"
+                /\ \/ /\ IF ((pilot \/ autopilot) /\ fly /\ chassi /\ up)
+                            THEN /\ /\ chassi' = FALSE
+                                    /\ up' = FALSE
+                            ELSE /\ IF ((pilot \/ autopilot) /\ fly /\ ~chassi /\ ~up)
+                                       THEN /\ chassi' = TRUE
                                        ELSE /\ TRUE
-                                            /\ UNCHANGED engine
-                      /\ pc' = [pc EXCEPT ![self] = "EngineChange"]
-                      /\ UNCHANGED << plane, pilot, chassi, pilotNeed >>
+                                            /\ UNCHANGED chassi
+                                 /\ up' = up
+                   \/ /\ IF ((pilot \/ autopilot) /\ fly /\ chassi /\ up)
+                            THEN /\ up' = FALSE
+                                 /\ UNCHANGED chassi
+                            ELSE /\ IF ((pilot \/ autopilot) /\ fly /\ ~chassi /\ ~up)
+                                       THEN /\ chassi' = TRUE
+                                       ELSE /\ TRUE
+                                            /\ UNCHANGED chassi
+                                 /\ up' = up
+                /\ pc' = [pc EXCEPT !["Flight"] = "FlightChange"]
+                /\ UNCHANGED << fly, pilot, fuel, cleaned, autopilot >>
 
-Engine(self) == EngineChange(self)
+Flight == FlightChange
 
-PlaneChange(self) == /\ pc[self] = "PlaneChange"
-                     /\ IF (pilot /= 1 /\ plane = 0 /\ engine = 1)
-                           THEN /\ plane' = 1
-                           ELSE /\ IF (chassi = 1 /\ plane = 1 /\ pilot /= 1)
-                                      THEN /\ plane' = 0
-                                      ELSE /\ TRUE
-                                           /\ plane' = plane
-                     /\ pc' = [pc EXCEPT ![self] = "PlaneChange"]
-                     /\ UNCHANGED << pilot, chassi, engine, pilotNeed >>
+AutoPilotChange == /\ pc["AutoPilot"] = "AutoPilotChange"
+                   /\ IF (pilot /\ fly)
+                         THEN /\ autopilot' = TRUE
+                              /\ pilot' = pilot
+                         ELSE /\ IF (autopilot /\ fly /\ pilot)
+                                    THEN /\ pilot' = FALSE
+                                    ELSE /\ TRUE
+                                         /\ pilot' = pilot
+                              /\ UNCHANGED autopilot
+                   /\ pc' = [pc EXCEPT !["AutoPilot"] = "AutoPilotChange"]
+                   /\ UNCHANGED << fly, chassi, fuel, cleaned, up >>
 
-Plane(self) == PlaneChange(self)
+AutoPilot == AutoPilotChange
 
-PilotChange(self) == /\ pc[self] = "PilotChange"
-                     /\ IF (pilot /= 1 /\ plane = 0 /\ engine = 0)
-                           THEN /\ pilot' = 1
-                                /\ UNCHANGED pilotNeed
-                           ELSE /\ IF (pilot = 1 /\ plane = 0 /\ engine = 0)
-                                      THEN /\ pilot' = pilotNeed[self]
-                                           /\ pilotNeed' = [pilotNeed EXCEPT ![self] = 1 - pilotNeed[self]]
-                                      ELSE /\ IF (pilot = 2 /\ plane = 1)
-                                                 THEN /\ pilot' = 0
-                                                 ELSE /\ TRUE
-                                                      /\ pilot' = pilot
-                                           /\ UNCHANGED pilotNeed
-                     /\ pc' = [pc EXCEPT ![self] = "PilotChange"]
-                     /\ UNCHANGED << plane, chassi, engine >>
-
-Pilot(self) == PilotChange(self)
-
-ChassiChange(self) == /\ pc[self] = "ChassiChange"
-                      /\ IF (chassi = 1 /\ plane = 1)
-                            THEN /\ chassi' = 0
-                            ELSE /\ chassi' = 1
-                      /\ pc' = [pc EXCEPT ![self] = "ChassiChange"]
-                      /\ UNCHANGED << plane, pilot, engine, pilotNeed >>
-
-Chassi(self) == ChassiChange(self)
-
-Next == (\E self \in 1..2: Engine(self))
-           \/ (\E self \in 1..2: Plane(self))
-           \/ (\E self \in 1..2: Pilot(self))
-           \/ (\E self \in 1..2: Chassi(self))
-           \/ (* Disjunct to prevent deadlock on termination *)
-              ((\A self \in ProcSet: pc[self] = "Done") /\ UNCHANGED vars)
+Next == Staff \/ Pilot \/ Flight \/ AutoPilot
 
 Spec == /\ Init /\ [][Next]_vars
-        /\ \A self \in 1..2 : WF_vars(Engine(self))
-        /\ \A self \in 1..2 : WF_vars(Plane(self))
-        /\ \A self \in 1..2 : WF_vars(Pilot(self))
-        /\ \A self \in 1..2 : WF_vars(Chassi(self))
-
-Termination == <>(\A self \in ProcSet: pc[self] = "Done")
+        /\ SF_vars(Staff)
+        /\ SF_vars(Pilot)
+        /\ SF_vars(Flight)
+        /\ SF_vars(AutoPilot)
 
 \* END TRANSLATION
+
+start_fly == [](pilot ~> fly)
+end_fly == [](fly ~> ~fly)
+autopilot_sometimes == <>(autopilot)
 =============================================================================
 \* Modification History
-\* Last modified Sun Dec 10 18:38:53 MSK 2023 by mark
+\* Last modified Fri Dec 15 21:28:57 MSK 2023 by mark

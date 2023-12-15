@@ -18,16 +18,20 @@
 <stringAttribute key="modelBehaviorNext" value=""/>
 <stringAttribute key="modelBehaviorSpec" value="Spec"/>
 <intAttribute key="modelBehaviorSpecType" value="1"/>
-<stringAttribute key="modelBehaviorVars" value="pilot, pilotNeed, chassi, pc, plane, engine"/>
+<stringAttribute key="modelBehaviorVars" value="fly, pilot, chassi, up, autopilot, pc, cleaned, fuel"/>
 <stringAttribute key="modelComments" value=""/>
 <booleanAttribute key="modelCorrectnessCheckDeadlock" value="true"/>
 <listAttribute key="modelCorrectnessInvariants">
 <listEntry value="1stands"/>
-<listEntry value="1engine_work"/>
-<listEntry value="1pilot_safe"/>
+<listEntry value="1enough_fuel"/>
+<listEntry value="1clean_check"/>
+<listEntry value="1somebody_control"/>
 </listAttribute>
 <listAttribute key="modelCorrectnessProperties">
 <listEntry value="0Termination"/>
+<listEntry value="1start_fly"/>
+<listEntry value="1end_fly"/>
+<listEntry value="1autopilot_sometimes"/>
 </listAttribute>
 <stringAttribute key="modelExpressionEval" value=""/>
 <stringAttribute key="modelParameterActionConstraint" value=""/>
