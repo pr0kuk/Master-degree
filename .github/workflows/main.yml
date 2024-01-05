@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-      - uses: actions/checkout@v1
+        uses: actions/checkout@v1
 
       - name: Get-Cmake
-      - uses: lukka/get-cmake@latest
+        uses: lukka/get-cmake@latest
 
       - name: Build
         working-directory: SAT2
