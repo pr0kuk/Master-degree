@@ -17,6 +17,12 @@ jobs:
       - name: Get-Cmake
         uses: lukka/get-cmake@latest
 
+      - name: Installing Dependencies
+        run:   |
+         sudo apt update
+         sudo apt install clang-17
+        shell: bash
+
       - name: Build
         working-directory: SAT2
         run: |
