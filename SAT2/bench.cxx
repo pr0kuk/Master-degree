@@ -7,11 +7,14 @@
 #include <numeric>
 #include <optional>
 import Common;
+import BaseSat;
 import Sat1;
 import Sat2;
 import Sat3;
 import Sat4;
-constexpr int COUNT_SAT = 4;
+import Sat5;
+import Sat6;
+constexpr int COUNT_SAT = 6;
 
 namespace po = boost::program_options;
 namespace fs = std::filesystem;
@@ -19,6 +22,7 @@ namespace ch = std::chrono;
 
 struct Opt_t {
   std::optional<bool> Check;
+  std::optional<bool> OnlyCheck;
   std::optional<int> RunSpecific;
   std::optional<fs::path> TestPathOpt;
   std::optional<fs::path> OutPathOpt;
@@ -35,7 +39,8 @@ struct Time_t {
 void printTime(Time_t Time, std::string Info = "Time",
                std::optional<fs::path> = std::nullopt);
 
-Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check);
+Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check,
+             std::optional<bool> OnlyCheck);
 
 int main(int Argc, char *Argv[]) {
   auto Opt = parseArgs(Argc, Argv);
@@ -49,14 +54,15 @@ int main(int Argc, char *Argv[]) {
               << fs::canonical(fs::absolute(*Opt->OutPathOpt)) << "\n";
 
   if (Opt->RunSpecific) {
-    printTime(bench(*Opt->RunSpecific, *Opt->TestPathOpt, Opt->Check),
-              std::to_string(*Opt->RunSpecific), Opt->OutPathOpt);
+    printTime(
+        bench(*Opt->RunSpecific, *Opt->TestPathOpt, Opt->Check, Opt->OnlyCheck),
+        std::to_string(*Opt->RunSpecific), Opt->OutPathOpt);
     return 0;
   }
 
   for (int i = 2; i < COUNT_SAT + 1; ++i)
-    printTime(bench(i, *Opt->TestPathOpt, Opt->Check), std::to_string(i),
-              Opt->OutPathOpt);
+    printTime(bench(i, *Opt->TestPathOpt, Opt->Check, Opt->OnlyCheck),
+              std::to_string(i), Opt->OutPathOpt);
 
   return 0;
 }
@@ -64,25 +70,32 @@ int main(int Argc, char *Argv[]) {
 // ----------------------- Implementations -----------------------------
 
 template <typename SatT>
-Time_t _bench(fs::path TestPath, std::optional<bool> Check);
+Time_t _bench(fs::path TestPath, std::optional<bool> Check,
+              std::optional<bool> OnlyCheck);
 
-Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check) {
+Time_t bench(int Num, fs::path TestPath, std::optional<bool> Check,
+             std::optional<bool> OnlyCheck) {
   switch (Num) {
   case 1:
-    return _bench<Sat1_t>(TestPath, Check);
+    return _bench<Sat1_t>(TestPath, Check, OnlyCheck);
   case 2:
-    return _bench<Sat2_t>(TestPath, Check);
+    return _bench<Sat2_t>(TestPath, Check, OnlyCheck);
   case 3:
-    return _bench<Sat3_t>(TestPath, Check);
+    return _bench<Sat3_t>(TestPath, Check, OnlyCheck);
   case 4:
-    return _bench<Sat4_t>(TestPath, Check);
+    return _bench<Sat4_t>(TestPath, Check, OnlyCheck);
+  case 5:
+    return _bench<Sat5_t>(TestPath, Check, OnlyCheck);
+  case 6:
+    return _bench<Sat6_t>(TestPath, Check, OnlyCheck);
   }
   std::cerr << "Sat " << std::to_string(Num) << " wasn't implemented!\n";
   return Time_t{};
 }
 
 template <typename SatT>
-Time_t _bench(fs::path TestPath, std::optional<bool> Check) {
+Time_t _bench(fs::path TestPath, std::optional<bool> Check,
+              std::optional<bool> OnlyCheck) {
   auto [VarCount, Value] = inputFromFile(TestPath);
   SatT SatVar(VarCount, std::move(Value));
 
@@ -96,14 +109,17 @@ Time_t _bench(fs::path TestPath, std::optional<bool> Check) {
     std::cerr << "\033[1;31mResult is " << Result << " but Check is " << *Check
               << "!\033[0m\n";
 
-  auto FindTimeStart = ch::high_resolution_clock::now();
-  SatVar.find();
-  auto FindTimeEnd = ch::high_resolution_clock::now();
+  auto FindTime = CheckTimeEnd - CheckTimeEnd; // 0
+  if (!OnlyCheck || (OnlyCheck && !OnlyCheck.value())) {
+    auto FindTimeStart = ch::high_resolution_clock::now();
+    SatVar.find();
+    FindTime = ch::high_resolution_clock::now() - FindTimeStart;
+  }
 
   return Time_t{
       ch::duration_cast<ch::microseconds>(CheckTimeStart - AnalyzeTime),
       ch::duration_cast<ch::microseconds>(CheckTimeEnd - CheckTimeStart),
-      ch::duration_cast<ch::microseconds>(FindTimeEnd - FindTimeStart)};
+      ch::duration_cast<ch::microseconds>(FindTime)};
 }
 
 template <typename T>
@@ -121,7 +137,9 @@ std::optional<Opt_t> parseArgs(int Argc, char *Argv[]) {
                                  "Path to print result. Default=stdout")(
       "check", po::value<bool>(), "Check for SAT/UNSAT, wait for bool value")(
       "run", po::value<int>(),
-      "Run specific SAT realization, wait for int value");
+      "Run specific SAT realization, wait for int value")(
+      "onlycheck", po::value<bool>(),
+      "Run only check() withoud find(), wait for bool value:");
 
   po::variables_map Vm;
   po::store(po::parse_command_line(Argc, Argv, Desc), Vm);
@@ -138,6 +156,7 @@ std::optional<Opt_t> parseArgs(int Argc, char *Argv[]) {
   Opt.OutPathOpt = readOption<fs::path>(Vm, "output");
   Opt.RunSpecific = readOption<int>(Vm, "run");
   Opt.Check = readOption<bool>(Vm, "check");
+  Opt.OnlyCheck = readOption<bool>(Vm, "onlycheck");
 
   if (Opt.TestPathOpt && fs::exists(*Opt.TestPathOpt) &&
       (!Opt.OutPathOpt || fs::exists(*Opt.OutPathOpt)))

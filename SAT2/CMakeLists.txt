@@ -1,15 +1,25 @@
 cmake_minimum_required(VERSION 3.28)
 project(std_module_example CXX)
 
-# Turning off extensions avoids and issue with the clang 16 compiler
-# clang 17 and greater can avoid this setting
-set(CMAKE_CXX_EXTENSIONS OFF)
-# Set the version of C++ for the project
-set(CMAKE_CXX_STANDARD 20)
-# Create a library
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_C_COMPILER "clang-17")
+set(CMAKE_CXX_COMPILER "clang++-17")
+set(CMAKE_BUILD_TYPE Debug)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS_DEBUG "-fconstexpr-backtrace-limit=0 -fconstexpr-steps=4294967295 -fconstexpr-depth=4294967295")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fconstexpr-backtrace-limit=0 -fconstexpr-steps=4294967295 -fconstexpr-depth=4294967295")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  set(CMAKE_CXX_FLAGS_DEBUG "/constexpr:steps4294967295 /constexpr:backtrace0 /constexpr:depth4294967295")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 /constexpr:steps4294967295 /constexpr:backtrace0 /constexpr:depth4294967295")
+endif()
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+set(BOOST_ALL_DYN_LINK OFF)
 
-find_package( Boost 1.40 COMPONENTS program_options REQUIRED )
-include_directories( ${Boost_INCLUDE_DIR} )
+find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 
 # Create an executable
 add_executable(test test.cxx)
@@ -21,8 +31,18 @@ target_sources(Common
     FILE_SET CXX_MODULES FILES
       Common.cxx 
 )
+add_library(BaseSat)
+target_sources(BaseSat
+  PUBLIC
+    FILE_SET CXX_MODULES FILES
+      BaseSat.cxx 
+)
 
-foreach(NUM RANGE 1 4)
+# Link to dependencies
+target_link_libraries(test BaseSat Common)
+target_link_libraries(bench BaseSat Common Boost::program_options)
+
+foreach(NUM RANGE 1 6)
   add_library(Sat${NUM})
   target_sources(Sat${NUM}
     PUBLIC
@@ -34,6 +54,9 @@ foreach(NUM RANGE 1 4)
   target_link_libraries(bench Sat${NUM})
 endforeach()
 
-# Link to dependencies
-target_link_libraries(test Common)
-target_link_libraries(bench Common Boost::program_options)
+install(TARGETS test DESTINATION .)
+install(TARGETS bench DESTINATION .)
+
+# COMPILE TIME
+
+add_subdirectory(CompileTime)

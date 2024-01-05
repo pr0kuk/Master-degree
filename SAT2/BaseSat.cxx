@@ -45,7 +45,7 @@ public:
 
   // to implement by optimizations
   virtual Sat setVar(int VarSet) const = 0;
-  Sat setLastVar(bool Var) const;
+  virtual Sat setMostImportantVar(bool Var) const;
 
   virtual bool check() const = 0;
   std::optional<std::string> find() const;
@@ -53,6 +53,7 @@ public:
 
   int getVarCount() const { return VarCount; }
   std::vector<int> getClause(int N) const { return Value[N]; }
+  virtual int getMostImportantVar() const { return VarCount; }
 
   bool isEmpty() const { return Value.empty(); }
   virtual bool canBeTrue() const { return isEmpty() || (VarCount == 0); }
@@ -62,7 +63,7 @@ public:
   void dump(std::string ExtraMsg = "Current SAT:") const;
 };
 
-Sat Sat_t::setLastVar(bool Var) const {
+Sat Sat_t::setMostImportantVar(bool Var) const {
   assert(VarCount > 0 && "VarCount can't be 0!");
   return this->setVar(Var ? VarCount : -VarCount);
 }

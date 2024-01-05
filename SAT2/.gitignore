@@ -1,6 +1,15 @@
 build
+install
 tmp
 .vscode
 *.out
 *.pcm
-MyMakefile
+data/
+CMakeFiles/
+*vcxproj*
+cmake_install.cmake
+CMakeCache.txt
+.vs/
+*.sln
+CMakeSettings.json
+Debug/

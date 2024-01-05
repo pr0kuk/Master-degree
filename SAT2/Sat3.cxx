@@ -9,7 +9,7 @@ module;
 
 export module Sat3;
 
-export import BaseSat;
+import BaseSat;
 
 namespace detailSat3 {
 template <typename S_t> bool find(const S_t &S, std::vector<char> &VarSets);

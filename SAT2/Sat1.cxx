@@ -9,7 +9,7 @@ module;
 
 export module Sat1;
 
-export import BaseSat;
+import BaseSat;
 
 namespace detailSat1 {
 template <typename S_t> bool find(const S_t &S, std::vector<char> &VarSets);
@@ -49,7 +49,8 @@ Sat Sat1_t::setVar(int VarSet) const {
 bool Sat1_t::check() const {
   if (this->VarCount == 0)
     return *this;
-  return setLastVar(true)->check() || setLastVar(false)->check();
+  return setMostImportantVar(true)->check() ||
+         setMostImportantVar(false)->check();
 }
 
 bool Sat1_t::innerFind(std::vector<char> &VarSets) const {
@@ -61,11 +62,11 @@ bool detailSat1::find(const S_t &S, std::vector<char> &VarSets) {
   if (S->getVarCount() == 0)
     return S->isEmpty();
 
-  if (find(S->setLastVar(false), VarSets))
+  if (find(S->setMostImportantVar(false), VarSets))
     return true;
 
   VarSets[S->getVarCount() - 1] = 1;
-  if (find(S->setLastVar(true), VarSets))
+  if (find(S->setMostImportantVar(true), VarSets))
     return true;
   VarSets[S->getVarCount() - 1] = 0;
 
