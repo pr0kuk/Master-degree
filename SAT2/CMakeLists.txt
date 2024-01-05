@@ -56,7 +56,3 @@ endforeach()
 
 install(TARGETS test DESTINATION .)
 install(TARGETS bench DESTINATION .)
-
-# COMPILE TIME
-
-add_subdirectory(CompileTime)
